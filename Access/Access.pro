@@ -13,8 +13,12 @@ TEMPLATE = app
 
 
 SOURCES += main.cpp\
-        mainwindow.cpp
+        mainwindow.cpp \
+    ADTFile.cpp \
+    ADTRecordFile.cpp
 
-HEADERS  += mainwindow.h
+HEADERS  += mainwindow.h \
+    ADTFile.h \
+    ADTRecordFile.h
 
 FORMS    += mainwindow.ui
