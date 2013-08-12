@@ -18,7 +18,6 @@
 #include <QtWidgets/QMenu>
 #include <QtWidgets/QMenuBar>
 #include <QtWidgets/QStatusBar>
-#include <QtWidgets/QToolBar>
 #include <QtWidgets/QWidget>
 
 QT_BEGIN_NAMESPACE
@@ -40,13 +39,17 @@ public:
     QAction *actionBorrar;
     QAction *actionListar_2;
     QAction *action;
+    QAction *actionImportar_XML;
+    QAction *actionExportar_XML;
+    QAction *actionImportal_Json;
+    QAction *actionExportar_Json;
     QWidget *centralWidget;
     QMenuBar *menuBar;
     QMenu *menuArchivos;
     QMenu *menuCampos;
     QMenu *menuRegistros;
     QMenu *menuIndices;
-    QToolBar *mainToolBar;
+    QMenu *menuUtilidades;
     QStatusBar *statusBar;
 
     void setupUi(QMainWindow *MainWindow)
@@ -82,6 +85,14 @@ public:
         actionListar_2->setObjectName(QStringLiteral("actionListar_2"));
         action = new QAction(MainWindow);
         action->setObjectName(QStringLiteral("action"));
+        actionImportar_XML = new QAction(MainWindow);
+        actionImportar_XML->setObjectName(QStringLiteral("actionImportar_XML"));
+        actionExportar_XML = new QAction(MainWindow);
+        actionExportar_XML->setObjectName(QStringLiteral("actionExportar_XML"));
+        actionImportal_Json = new QAction(MainWindow);
+        actionImportal_Json->setObjectName(QStringLiteral("actionImportal_Json"));
+        actionExportar_Json = new QAction(MainWindow);
+        actionExportar_Json->setObjectName(QStringLiteral("actionExportar_Json"));
         centralWidget = new QWidget(MainWindow);
         centralWidget->setObjectName(QStringLiteral("centralWidget"));
         MainWindow->setCentralWidget(centralWidget);
@@ -96,10 +107,9 @@ public:
         menuRegistros->setObjectName(QStringLiteral("menuRegistros"));
         menuIndices = new QMenu(menuBar);
         menuIndices->setObjectName(QStringLiteral("menuIndices"));
+        menuUtilidades = new QMenu(menuBar);
+        menuUtilidades->setObjectName(QStringLiteral("menuUtilidades"));
         MainWindow->setMenuBar(menuBar);
-        mainToolBar = new QToolBar(MainWindow);
-        mainToolBar->setObjectName(QStringLiteral("mainToolBar"));
-        MainWindow->addToolBar(Qt::TopToolBarArea, mainToolBar);
         statusBar = new QStatusBar(MainWindow);
         statusBar->setObjectName(QStringLiteral("statusBar"));
         MainWindow->setStatusBar(statusBar);
@@ -107,6 +117,7 @@ public:
         menuBar->addAction(menuArchivos->menuAction());
         menuBar->addAction(menuCampos->menuAction());
         menuBar->addAction(menuRegistros->menuAction());
+        menuBar->addAction(menuUtilidades->menuAction());
         menuBar->addAction(menuIndices->menuAction());
         menuArchivos->addAction(actionNuevo);
         menuArchivos->addAction(actionAbrir);
@@ -122,6 +133,10 @@ public:
         menuRegistros->addAction(actionBorrar);
         menuRegistros->addAction(actionListar_2);
         menuRegistros->addAction(action);
+        menuUtilidades->addAction(actionImportar_XML);
+        menuUtilidades->addAction(actionExportar_XML);
+        menuUtilidades->addAction(actionImportal_Json);
+        menuUtilidades->addAction(actionExportar_Json);
 
         retranslateUi(MainWindow);
 
@@ -145,10 +160,15 @@ public:
         actionBorrar->setText(QApplication::translate("MainWindow", "Borrar", 0));
         actionListar_2->setText(QApplication::translate("MainWindow", "Listar", 0));
         action->setText(QApplication::translate("MainWindow", "?", 0));
+        actionImportar_XML->setText(QApplication::translate("MainWindow", "Importar XML", 0));
+        actionExportar_XML->setText(QApplication::translate("MainWindow", "Exportar XML", 0));
+        actionImportal_Json->setText(QApplication::translate("MainWindow", "Importar Json", 0));
+        actionExportar_Json->setText(QApplication::translate("MainWindow", "Exportar Json", 0));
         menuArchivos->setTitle(QApplication::translate("MainWindow", "Archivos", 0));
         menuCampos->setTitle(QApplication::translate("MainWindow", "Campos", 0));
         menuRegistros->setTitle(QApplication::translate("MainWindow", "Registros", 0));
         menuIndices->setTitle(QApplication::translate("MainWindow", "Indices", 0));
+        menuUtilidades->setTitle(QApplication::translate("MainWindow", "Utilidades", 0));
     } // retranslateUi
 
 };
