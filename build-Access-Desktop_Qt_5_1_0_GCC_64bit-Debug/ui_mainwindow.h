@@ -18,6 +18,7 @@
 #include <QtWidgets/QMenu>
 #include <QtWidgets/QMenuBar>
 #include <QtWidgets/QStatusBar>
+#include <QtWidgets/QTableView>
 #include <QtWidgets/QWidget>
 
 QT_BEGIN_NAMESPACE
@@ -44,6 +45,7 @@ public:
     QAction *actionImportal_Json;
     QAction *actionExportar_Json;
     QWidget *centralWidget;
+    QTableView *table;
     QMenuBar *menuBar;
     QMenu *menuArchivos;
     QMenu *menuCampos;
@@ -95,6 +97,9 @@ public:
         actionExportar_Json->setObjectName(QStringLiteral("actionExportar_Json"));
         centralWidget = new QWidget(MainWindow);
         centralWidget->setObjectName(QStringLiteral("centralWidget"));
+        table = new QTableView(centralWidget);
+        table->setObjectName(QStringLiteral("table"));
+        table->setGeometry(QRect(10, 20, 256, 192));
         MainWindow->setCentralWidget(centralWidget);
         menuBar = new QMenuBar(MainWindow);
         menuBar->setObjectName(QStringLiteral("menuBar"));

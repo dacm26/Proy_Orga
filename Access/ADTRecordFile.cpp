@@ -11,23 +11,9 @@ ADTRecordFile::ADTRecordFile(){
 ADTRecordFile::~ADTRecordFile(){
 
 }
-bool ADTRecordFile::open(string name,ios_base::openmode modo){
+bool ADTRecordFile::open(string name){
     filename=name;
-    mode=modo;
-
-    file.open(name.c_str(), modo);
-
-    if (file.is_open())
-        return true;
-
-    return false;
-}
-
-bool ADTRecordFile::open(string name,ios_base::openmode modo,ios_base::openmode modo2){
-    filename=name;
-    mode=modo;
-
-    file.open(name.c_str(), modo | modo2);
+    file.open(name.c_str(), fstream::in | fstream::out);
 
     if (file.is_open())
         return true;
@@ -76,46 +62,47 @@ int ADTRecordFile::deleteRecord(int p,int init){
 bool ADTRecordFile::flush(){
     if (!file.is_open())
         return false;
+    file.flush();
+    if(file.rdstate()!= 0)
+       return false;
 
-    if (mode==ios_base::out)
-    {
-        file.flush();
-        if(file.rdstate()!= 0)
-            return false;
-
-    }
-    return false;
+    return true;
 }
 
-bool ADTRecordFile::seek(int n,ios_base::seekdir way){
+bool ADTRecordFile::seekg(int n,ios_base::seekdir way){
     /*
      *No Implementado
      */
     if (!file.is_open())
         return false;
 
-    if (mode==ios_base::in)//utilizariamos la libreria ifstream
-    {
-        file.seekg(n,way);
-    }
-    else if(mode==ios_base::out){//utilizariamos la libreria ofstream
-        file.seekp(n,way);
-    }
+    file.seekg(n,way);
+
+    return true;
+}
+bool ADTRecordFile::seekp(int n,ios_base::seekdir way){
+    /*
+     *No Implementado
+     */
+    if (!file.is_open())
+        return false;
+
+    file.seekp(n,way);
     return true;
 }
 
-int ADTRecordFile::tell(){
+int ADTRecordFile::tellg(){
     if (!file.is_open())
         return -1;
 
-    if (mode==ios_base::in)//utilizariamos la libreria ifstream
-    {
-        return file.tellg();
-    }
-    else if(mode==ios_base::out){//utilizariamos la libreria ofstream
-        return file.tellp();
-    }
-    return -1;
+    return file.tellg();
+}
+
+int ADTRecordFile::tellp(){
+    if (!file.is_open())
+        return -1;
+
+    return file.tellp();
 }
 
 bool ADTRecordFile::isOpen(){
@@ -139,14 +126,8 @@ bool ADTRecordFile::isBoF(){
     if (!file.is_open())
         return false;
 
-    if (mode==ios_base::in){//utilizariamos la libreria ifstream
-        if(file.tellg()==0)
-            return true;
-    }
-
-    else if(mode==ios_base::out)//utilizariamos la libreria ofstream
-        if(file.tellp()==0)
-            return true;
+    if(file.tellg()==0)
+        return true;
 
     return false;
 }

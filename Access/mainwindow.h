@@ -1,8 +1,9 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
-
+#include "field_w.h"
 #include <QMainWindow>
-
+#include <vector>
+using namespace std;
 namespace Ui {
 class MainWindow;
 }
@@ -21,9 +22,10 @@ private slots:
     void on_actionCrear_triggered();
 
     void on_actionSalir_triggered();
-
-private:
+public:
     Ui::MainWindow *ui;
+    field_W *novo;
+    vector<int> fieldlist;
 };
 
 #endif // MAINWINDOW_H
