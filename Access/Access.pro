@@ -15,10 +15,13 @@ TEMPLATE = app
 SOURCES += main.cpp\
         mainwindow.cpp \
     ADTFile.cpp \
-    ADTRecordFile.cpp
+    ADTRecordFile.cpp \
+    field_w.cpp
 
 HEADERS  += mainwindow.h \
     ADTFile.h \
-    ADTRecordFile.h
+    ADTRecordFile.h \
+    field_w.h
 
-FORMS    += mainwindow.ui
+FORMS    += mainwindow.ui \
+    field_w.ui
