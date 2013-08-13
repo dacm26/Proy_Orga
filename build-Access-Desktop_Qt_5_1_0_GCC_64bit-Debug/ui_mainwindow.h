@@ -159,7 +159,7 @@ public:
         actionBuscar->setText(QApplication::translate("MainWindow", "Buscar", 0));
         actionBorrar->setText(QApplication::translate("MainWindow", "Borrar", 0));
         actionListar_2->setText(QApplication::translate("MainWindow", "Listar", 0));
-        action->setText(QApplication::translate("MainWindow", "?", 0));
+        action->setText(QApplication::translate("MainWindow", "Cruzar", 0));
         actionImportar_XML->setText(QApplication::translate("MainWindow", "Importar XML", 0));
         actionExportar_XML->setText(QApplication::translate("MainWindow", "Exportar XML", 0));
         actionImportal_Json->setText(QApplication::translate("MainWindow", "Importar Json", 0));
