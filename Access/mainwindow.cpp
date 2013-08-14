@@ -67,9 +67,15 @@ void MainWindow::on_actionListar_triggered()
     for(int i=0; i<fh->fl_size();i++){//Se Asignan los valores de los campos a la tabla central
         qstr= QString::fromStdString((fh->getFL().at(i)).getName());
         model->setItem(i,0,new QStandardItem(qstr));
-        str=(fh->getFL().at(i)).getType();
-        qstr= QString::fromStdString(str);
-        model->setItem(i,1,new QStandardItem(qstr));
+        if((fh->getFL().at(i)).getType() == '0'){
+            model->setItem(i,1,new QStandardItem("Entero"));
+        }
+        else if((fh->getFL().at(i)).getType() == '1'){
+            model->setItem(i,1,new QStandardItem("Real"));
+        }
+        else{
+             model->setItem(i,1,new QStandardItem("Cadena"));
+        }
         ss << (fh->getFL().at(i)).getLength();
         str=ss.str();
         ss.str("");
@@ -80,11 +86,13 @@ void MainWindow::on_actionListar_triggered()
         ss.str("");
         qstr= QString::fromStdString(str);
         model->setItem(i,3,new QStandardItem(qstr));
-        ss << (fh->getFL().at(i)).getKey();
-        str=ss.str();
-        ss.str("");
-        qstr= QString::fromStdString(str);
-        model->setItem(i,4,new QStandardItem(qstr));
+        if((fh->getFL().at(i)).getKey()==0){
+            model->setItem(i,4,new QStandardItem("No es llave"));
+        }
+        else{
+           model->setItem(i,4,new QStandardItem("Es llave"));
+        }
+
     }//Se termino de Asignar los valores de los campos en la tabla central
     ui->table->setModel(model);//Asigna el Modelo a la tabla
 }
