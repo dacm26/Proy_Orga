@@ -1,7 +1,6 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "field_w.h"
-#include "mod_fields.h"
 
 
 #include <QMessageBox>
@@ -9,7 +8,7 @@
 #include <QFileDialog>
 #include <QStandardItemModel>
 #include <QStandardItem>
-
+#include <QInputDialog>
 
 #include <iostream>
 #include <sstream>
@@ -52,6 +51,9 @@ void MainWindow::on_actionSalir_triggered()
 
 void MainWindow::on_actionListar_triggered()
 {
+    if(fh->fl_size()==0){
+        QMessageBox::warning(this,"Error","No tiene campos que listar");
+    }else{
     QStandardItemModel* model = new QStandardItemModel(1,1,this);//Se crea el modelo para la tabla
     //Se crean las columnas de la tabla
     model->setHorizontalHeaderItem(0,new QStandardItem(QString("Nombre")));
@@ -95,17 +97,23 @@ void MainWindow::on_actionListar_triggered()
 
     }//Se termino de Asignar los valores de los campos en la tabla central
     ui->table->setModel(model);//Asigna el Modelo a la tabla
+    }
 }
 
 void MainWindow::on_actionModificar_triggered()
 {
     if(fh->fl_size() > 0){//Si existen campos
-    int sel;
-    mod_fields *novo = new mod_fields();
-    novo->setLabel(fh->getFL());//Se le asignan los campos al Label de novo
-    novo->exec();
-    sel=novo->getSel();//Campo a Modificar
-    delete novo;
+        stringstream ss;
+        bool ok;
+        int mod_field;
+        for(int i=0; i<fh->fl_size();++i){
+                ss << (i) << ". " << (fh->getFL().at(i)).getName() << endl;//Se asigna al ss con su respectivo inciso y nombre
+        }
+        QString qstr = QString::fromStdString(ss.str());//Pasamos de String -> QString
+        do{
+            mod_field=QInputDialog::getInt(this,"Modificar campos",qstr,0,0,fh->fl_size()-1,1,&ok);
+        }while(!ok);
+        cout << mod_field;
     }
     else{//Si no existen campos
         QMessageBox::warning(this,"Error","No tiene campos para modificar");

@@ -49,9 +49,23 @@ void field_W::on_field_add_clicked()
 {
     if(ui->field_type->currentIndex()==1 && ((ui->field_decimal->value()==0) || (ui->field_length->value() == 0) || ((ui->field_name->text().operator ==("")) ||(ui->field_name->text().operator ==(NULL)))) ){
         QMessageBox::warning(this,"Error","No tiene los atributos suficientes para crear un campo");
+        ui->field_decimal->setValue(1);
+        ui->field_decimal->setEnabled(false);
+        ui->field_key->setChecked(false);
+        ui->field_length->setValue(0);
+        ui->field_name->setText("");
+        ui->field_type->setCurrentIndex(0);
+        return ;
     }
     else if((ui->field_length->value() == 0) || ((ui->field_name->text().operator ==("")) ||(ui->field_name->text().operator ==(NULL)) )){
         QMessageBox::warning(this,"Error","No tiene los atributos suficientes para crear un campo");
+        ui->field_decimal->setValue(1);
+        ui->field_decimal->setEnabled(false);
+        ui->field_key->setChecked(false);
+        ui->field_length->setValue(0);
+        ui->field_name->setText("");
+        ui->field_type->setCurrentIndex(0);
+        return ;
     }
     int y=0;//0 no es key, 1 si lo es
     if(ui->field_key->isChecked()){
@@ -65,8 +79,11 @@ void field_W::on_field_add_clicked()
     char x;
     int d=0;
 
-    if(ui->field_type->currentIndex()==1)
+    if(ui->field_type->currentIndex()==1){
         d=ui->field_decimal->value();
+        if(d<=0)
+            d=1;
+    }
 
     if(ui->field_type->currentIndex()==0)
         x='0';

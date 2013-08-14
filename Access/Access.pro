@@ -17,16 +17,13 @@ SOURCES += main.cpp\
     ADTRecordFile.cpp \
     field_w.cpp \
     field.cpp \
-    fileheader.cpp \
-    mod_fields.cpp
+    fileheader.cpp
 
 HEADERS  += mainwindow.h \
     ADTRecordFile.h \
     field_w.h \
     field.h \
-    fileheader.h \
-    mod_fields.h
+    fileheader.h
 
 FORMS    += mainwindow.ui \
-    field_w.ui \
-    mod_fields.ui
+    field_w.ui
