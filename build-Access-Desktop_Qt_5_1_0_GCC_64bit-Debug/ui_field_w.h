@@ -150,9 +150,9 @@ public:
         label_2->setText(QApplication::translate("field_W", "Tipo", 0));
         label_3->setText(QApplication::translate("field_W", "Longitud", 0));
         label_4->setText(QApplication::translate("field_W", "Decimal", 0));
-        label_5->setText(QApplication::translate("field_W", "Key", 0));
-        field_add->setText(QApplication::translate("field_W", "Add Field", 0));
-        field_clear->setText(QApplication::translate("field_W", "Clear", 0));
+        label_5->setText(QApplication::translate("field_W", "Llave", 0));
+        field_add->setText(QApplication::translate("field_W", "Agregar Campo", 0));
+        field_clear->setText(QApplication::translate("field_W", "Limpiar", 0));
     } // retranslateUi
 
 };

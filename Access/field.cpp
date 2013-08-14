@@ -54,5 +54,6 @@ const int field::getKey () const{
 
 const string field::toString () const{
 	stringstream ss;
-	
+    ss << this->getName() << ',' << this->getType() << ',' << this->getLength() << ',' << this->getDecimal() << ',' << this->getKey() << endl;
+    return ss.str();
 }

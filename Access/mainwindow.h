@@ -3,6 +3,7 @@
 #include "field_w.h"
 #include <QMainWindow>
 #include <vector>
+#include "fileheader.h"
 using namespace std;
 namespace Ui {
 class MainWindow;
@@ -22,10 +23,14 @@ private slots:
     void on_actionCrear_triggered();
 
     void on_actionSalir_triggered();
+    void on_actionListar_triggered();
+
+    void on_actionModificar_triggered();
+
 public:
     Ui::MainWindow *ui;
     field_W *novo;
-    vector<int> fieldlist;
+    FileHeader *fh;
 };
 
 #endif // MAINWINDOW_H

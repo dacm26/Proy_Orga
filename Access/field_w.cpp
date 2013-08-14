@@ -1,10 +1,15 @@
 #include "field_w.h"
+#include "field.h"
 #include "ui_field_w.h"
 #include <QMessageBox>
+#include <iostream>
+using namespace std;
 field_W::field_W(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::field_W)
 {
+    fh=new FileHeader();
+    show_key=true;
     ui->setupUi(this);
     ui->field_type->addItem("Entero");
     ui->field_type->addItem("Real");
@@ -48,15 +53,39 @@ void field_W::on_field_add_clicked()
     else if((ui->field_length->value() == 0) || ((ui->field_name->text().operator ==("")) ||(ui->field_name->text().operator ==(NULL)) )){
         QMessageBox::warning(this,"Error","No tiene los atributos suficientes para crear un campo");
     }
-    for(int i=0; i<10;++i){
-        fieldlist.push_back((i+1));
+    int y=0;//0 no es key, 1 si lo es
+    if(ui->field_key->isChecked()){
+        show_key=false;
+        y=1;
     }
+    if(!show_key){
+        ui->field_key->setChecked(false);
+        ui->field_key->setEnabled(false);
+    }
+    char x;
+    int d=0;
 
+    if(ui->field_type->currentIndex()==1)
+        d=ui->field_decimal->value();
+
+    if(ui->field_type->currentIndex()==0)
+        x='0';
+    if(ui->field_type->currentIndex()==1)
+        x='1';
+    if(ui->field_type->currentIndex()==2)
+        x='2';
+
+    field a(ui->field_name->text().toStdString(),x,ui->field_length->value(),d,y);
+    fh->addField(a);
+    ui->field_decimal->setValue(1);
+    ui->field_decimal->setEnabled(false);
+    ui->field_key->setChecked(false);
+    ui->field_length->setValue(0);
+    ui->field_name->setText("");
+    ui->field_type->setCurrentIndex(0);
 }
-void field_W::getFields(vector<int>& x){
-    for(int i=0;i<fieldlist.size();++i){
-        x.push_back(fieldlist.at(i));
-    }
+FileHeader* field_W::getFields(){
+    return fh;
 }
 
 void field_W::on_field_length_valueChanged(int arg1)

@@ -12,13 +12,15 @@ using namespace std;
 class FileHeader {
 
 private:
-	vector<field*> fieldlist;
+    vector<field> fieldlist;
 	stack<int> availList;
 
 public:
 	FileHeader();
 	~FileHeader();
-	void addField ( field* );
+    void addField ( field );
+    const int fl_size()const;
+    vector<field> getFL()const;
 	void removeField ( const int );
 	const int getLength () const;
 	void addIndex ( const int );

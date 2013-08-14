@@ -1,6 +1,6 @@
 #ifndef FIELD_W_H
 #define FIELD_W_H
-
+#include "fileheader.h"
 #include <QDialog>
 #include <vector>
 using namespace std;
@@ -15,7 +15,7 @@ class field_W : public QDialog
     
 public:
     explicit field_W(QWidget *parent = 0);
-    void getFields(vector<int>&);
+    FileHeader* getFields();
     ~field_W();
 
 private slots:
@@ -29,7 +29,8 @@ private slots:
 
 private:
     Ui::field_W *ui;
-    vector<int> fieldlist;
+    FileHeader *fh;
+    bool show_key;
 };
 
 #endif // FIELD_W_H

@@ -67,7 +67,7 @@
     <item>
      <widget class="QLabel" name="label_5">
       <property name="text">
-       <string>Key</string>
+       <string>Llave</string>
       </property>
      </widget>
     </item>
@@ -86,14 +86,14 @@
     <item>
      <widget class="QPushButton" name="field_add">
       <property name="text">
-       <string>Add Field</string>
+       <string>Agregar Campo</string>
       </property>
      </widget>
     </item>
     <item>
      <widget class="QPushButton" name="field_clear">
       <property name="text">
-       <string>Clear</string>
+       <string>Limpiar</string>
       </property>
      </widget>
     </item>
@@ -135,6 +135,9 @@
   <zorder>layoutWidget</zorder>
   <zorder>layoutWidget</zorder>
   <zorder>field_key</zorder>
+  <zorder>pushButton</zorder>
+  <zorder>pushButton_2</zorder>
+  <zorder>pushButton</zorder>
  </widget>
  <resources/>
  <connections/>
