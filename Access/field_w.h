@@ -16,6 +16,7 @@ class field_W : public QDialog
 public:
     explicit field_W(QWidget *parent = 0);
     FileHeader* getFields();
+    void copy_fh(FileHeader*);
     ~field_W();
 
 private slots:

@@ -18,6 +18,8 @@ private:
 public:
 	FileHeader();
 	~FileHeader();
+    void setAL(stack<int>);
+    stack<int> getAL();
     void addField ( field );
     const int fl_size()const;
     vector<field> getFL()const;

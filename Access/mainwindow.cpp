@@ -39,6 +39,8 @@ void MainWindow::on_actionNuevo_triggered()
 void MainWindow::on_actionCrear_triggered()
 {
     novo= new field_W();//Se crea la ventana para crear campos
+    if(fh->fl_size()>0)
+        novo->copy_fh(fh);
     novo->exec();//se ejecuta la ventana
     fh=novo->getFields();//Obtiene el FieldList y AvailList
     delete novo;//se libera la memoria

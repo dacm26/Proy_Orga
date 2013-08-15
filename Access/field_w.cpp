@@ -3,6 +3,7 @@
 #include "ui_field_w.h"
 #include <QMessageBox>
 #include <iostream>
+#include <stack>
 using namespace std;
 field_W::field_W(QWidget *parent) :
     QDialog(parent),
@@ -15,6 +16,11 @@ field_W::field_W(QWidget *parent) :
     ui->field_type->addItem("Real");
     ui->field_type->addItem("Cadena");
     ui->field_decimal->setEnabled(false);
+}
+void field_W::copy_fh(FileHeader* f){
+    for(int i=0;i<f->fl_size();i++)
+        fh->addField(f->getFL().at(i));
+     fh->setAL(f->getAL());
 }
 
 field_W::~field_W()

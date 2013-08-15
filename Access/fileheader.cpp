@@ -15,6 +15,13 @@ void FileHeader::addField ( field f ){//Se anade un campo al vector de campos
 void FileHeader::removeField ( const int i ){//Se elimina un campo del vector de campos
 	this->fieldlist.erase(fieldlist.begin() + i);
 }
+void FileHeader::setAL(stack<int> x){
+    this->availList=x;
+}
+
+stack<int> FileHeader::getAL(){
+    return this->availList;
+}
 
 const int FileHeader::getLength () const{//Obtiene la longitud del registro
 	int length = 0;
