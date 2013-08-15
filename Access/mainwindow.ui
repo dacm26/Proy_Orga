@@ -61,7 +61,8 @@
     <addaction name="actionBuscar"/>
     <addaction name="actionBorrar"/>
     <addaction name="actionListar_2"/>
-    <addaction name="action"/>
+    <addaction name="separator"/>
+    <addaction name="actionCruzar"/>
    </widget>
    <widget class="QMenu" name="menuIndices">
     <property name="title">
@@ -149,7 +150,7 @@
     <string>Listar</string>
    </property>
   </action>
-  <action name="action">
+  <action name="actionCruzar">
    <property name="text">
     <string>Cruzar</string>
    </property>

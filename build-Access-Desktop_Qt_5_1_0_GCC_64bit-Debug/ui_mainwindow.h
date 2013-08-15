@@ -39,7 +39,7 @@ public:
     QAction *actionBuscar;
     QAction *actionBorrar;
     QAction *actionListar_2;
-    QAction *action;
+    QAction *actionCruzar;
     QAction *actionImportar_XML;
     QAction *actionExportar_XML;
     QAction *actionImportal_Json;
@@ -85,8 +85,8 @@ public:
         actionBorrar->setObjectName(QStringLiteral("actionBorrar"));
         actionListar_2 = new QAction(MainWindow);
         actionListar_2->setObjectName(QStringLiteral("actionListar_2"));
-        action = new QAction(MainWindow);
-        action->setObjectName(QStringLiteral("action"));
+        actionCruzar = new QAction(MainWindow);
+        actionCruzar->setObjectName(QStringLiteral("actionCruzar"));
         actionImportar_XML = new QAction(MainWindow);
         actionImportar_XML->setObjectName(QStringLiteral("actionImportar_XML"));
         actionExportar_XML = new QAction(MainWindow);
@@ -137,7 +137,8 @@ public:
         menuRegistros->addAction(actionBuscar);
         menuRegistros->addAction(actionBorrar);
         menuRegistros->addAction(actionListar_2);
-        menuRegistros->addAction(action);
+        menuRegistros->addSeparator();
+        menuRegistros->addAction(actionCruzar);
         menuUtilidades->addAction(actionImportar_XML);
         menuUtilidades->addAction(actionExportar_XML);
         menuUtilidades->addAction(actionImportal_Json);
@@ -164,7 +165,7 @@ public:
         actionBuscar->setText(QApplication::translate("MainWindow", "Buscar", 0));
         actionBorrar->setText(QApplication::translate("MainWindow", "Borrar", 0));
         actionListar_2->setText(QApplication::translate("MainWindow", "Listar", 0));
-        action->setText(QApplication::translate("MainWindow", "Cruzar", 0));
+        actionCruzar->setText(QApplication::translate("MainWindow", "Cruzar", 0));
         actionImportar_XML->setText(QApplication::translate("MainWindow", "Importar XML", 0));
         actionExportar_XML->setText(QApplication::translate("MainWindow", "Exportar XML", 0));
         actionImportal_Json->setText(QApplication::translate("MainWindow", "Importar Json", 0));

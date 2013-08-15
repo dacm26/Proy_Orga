@@ -24,7 +24,6 @@ public:
     bool isOk();
     bool isBoF();
     bool isEoF();
-private:
     fstream file;
     string filename;
 };

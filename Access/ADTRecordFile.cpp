@@ -6,12 +6,12 @@
 using namespace std;
 
 ADTRecordFile::ADTRecordFile(){
-
 }
 
 ADTRecordFile::~ADTRecordFile(){
 
 }
+
 bool ADTRecordFile::open(string name){
     filename=name;
     file.open(name.c_str(), fstream::in | fstream::out);

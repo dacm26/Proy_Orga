@@ -1,5 +1,5 @@
 #include "fileheader.h"
-
+#include <sstream>
 FileHeader::FileHeader() {
 	
 }
@@ -63,4 +63,22 @@ int FileHeader::getIndex() {//Devuelve un elemento del availlist
     return i;
 }
 
+string FileHeader::toString()const{
+    stringstream ss;
+    for(int i = 0; i < this->fl_size();++i){
+        ss << this->fieldlist.at(i).getName() << ',';
+        ss << this->fieldlist.at(i).getType() << ',';
+        ss << this->fieldlist.at(i).getLength() << ',';
+        ss << this->fieldlist.at(i).getDecimal() << ',';
+        ss << this->fieldlist.at(i).getKey() << ';' << endl;
+    }
+    ss << '@';
+    if(!availList.empty())
+        do{
+            ss << availList.top() << ',';
+        }while(!this->availList.empty());
+
+    ss << endl;
+    return ss.str();
+}
 

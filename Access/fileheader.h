@@ -28,6 +28,7 @@ public:
 	const int getLength () const;
 	void addIndex ( const int );
 	int getIndex() ; 
+    string toString()const;
 	
 };
 
