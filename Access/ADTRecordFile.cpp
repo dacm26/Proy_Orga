@@ -14,7 +14,13 @@ ADTRecordFile::~ADTRecordFile(){
 bool ADTRecordFile::open(string name){
     filename=name;
     file.open(name.c_str(), fstream::in | fstream::out);
-
+    if(!file.is_open()){
+        file.open(name.c_str(),fstream::out);
+        file.write(" ",1);
+        file.flush();
+        file.close();
+        file.open(name.c_str(), fstream::in | fstream::out);
+    }
     if (file.is_open())
         return true;
 

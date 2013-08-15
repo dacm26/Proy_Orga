@@ -119,9 +119,14 @@ FileHeader* field_W::getFields(){
 }
 
 void field_W::on_field_length_valueChanged(int arg1)
-{
+{        
     if(ui->field_type->currentIndex()==1){
-        ui->field_decimal->setMaximum(arg1-2);
+        if(arg1<=3){
+            ui->field_decimal->setValue(1);
+            ui->field_decimal->setMaximum(1);
+        }
+        else
+            ui->field_decimal->setMaximum(arg1-2);
     }
     else{
         ui->field_decimal->setValue(1);

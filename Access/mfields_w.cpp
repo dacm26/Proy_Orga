@@ -19,6 +19,10 @@ mFields_w::mFields_w(QWidget *parent) :
     ui->mod_tipo->addItem("Real");
     ui->mod_tipo->addItem("Cadena");
     ui->mod_decimal->setEnabled(false);
+
+    connect(ui->mod_ok, SIGNAL(clicked()),
+            this, SLOT(on_mod_ok_clicked()));
+    connect(ui->mod_nombre,SIGNAL(editingFinished()),this,SLOT(on_mod_nombre_editingFinished()));
 }
 
 mFields_w::~mFields_w()
