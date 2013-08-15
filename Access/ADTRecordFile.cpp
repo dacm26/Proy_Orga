@@ -70,9 +70,6 @@ bool ADTRecordFile::flush(){
 }
 
 bool ADTRecordFile::seekg(int n,ios_base::seekdir way){
-    /*
-     *No Implementado
-     */
     if (!file.is_open())
         return false;
 
@@ -81,9 +78,6 @@ bool ADTRecordFile::seekg(int n,ios_base::seekdir way){
     return true;
 }
 bool ADTRecordFile::seekp(int n,ios_base::seekdir way){
-    /*
-     *No Implementado
-     */
     if (!file.is_open())
         return false;
 

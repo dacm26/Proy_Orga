@@ -14,6 +14,14 @@
 #include <sstream>
 using namespace std;
 
+/*
+ Pendiente:
+ **Modificar campos
+ **Registros
+ **Utilidades
+ **Archivos
+ **Indices
+*/
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
@@ -115,7 +123,6 @@ void MainWindow::on_actionModificar_triggered()
         do{
             mod_field=QInputDialog::getInt(this,"Modificar campos",qstr,0,0,fh->fl_size()-1,1,&ok);
         }while(!ok);
-        cout << mod_field;
     }
     else{//Si no existen campos
         QMessageBox::warning(this,"Error","No tiene campos para modificar");

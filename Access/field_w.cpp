@@ -21,6 +21,12 @@ void field_W::copy_fh(FileHeader* f){
     for(int i=0;i<f->fl_size();i++)
         fh->addField(f->getFL().at(i));
      fh->setAL(f->getAL());
+     for(int i=0; i<fh->fl_size();++i)
+         if(fh->getFL().at(i).getKey()==1){
+            this->show_key=false;
+            ui->field_key->setEnabled(false);
+            break;
+         }
 }
 
 field_W::~field_W()
@@ -119,4 +125,14 @@ void field_W::on_field_length_valueChanged(int arg1)
     else{
         ui->field_decimal->setValue(1);
     }
+}
+
+void field_W::on_field_name_editingFinished()
+{
+    QString qstr1=ui->field_name->text();
+    for(int i=0; i<fh->fl_size();++i)
+        if(qstr1 == (QString::fromStdString( fh->getFL().at(i).getName()) )){
+            QMessageBox::warning(this,"Error","Nombre de campo ya usado");
+            ui->field_name->setText("");
+        }
 }

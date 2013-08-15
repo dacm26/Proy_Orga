@@ -28,6 +28,8 @@ private slots:
 
     void on_field_length_valueChanged(int arg1);
 
+    void on_field_name_editingFinished();
+
 private:
     Ui::field_W *ui;
     FileHeader *fh;
