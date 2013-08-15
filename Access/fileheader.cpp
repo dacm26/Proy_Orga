@@ -23,6 +23,17 @@ stack<int> FileHeader::getAL(){
     return this->availList;
 }
 
+void FileHeader::setField(int x,field y){//Modifica un campo
+    this->fieldlist.at(x).setName(y.getName());
+    if(y.getKey()==1)
+        for(int i=0;i<this->fieldlist.size();++i)
+            if(fieldlist.at(i).getKey()==1){
+                fieldlist.at(i).setKey(0);
+                i=fieldlist.size();
+            }
+    this->fieldlist.at(x).setKey(y.getKey());
+}
+
 const int FileHeader::getLength () const{//Obtiene la longitud del registro
 	int length = 0;
 	for (int i = 0; i < fieldlist.size(); i++)	{

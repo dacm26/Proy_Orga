@@ -15,6 +15,7 @@ private:
 	int decimal;
 	int key;
 public:
+    field();
 	field( string, char, int, int, int );
 	~field();
 	void setName ( const string );

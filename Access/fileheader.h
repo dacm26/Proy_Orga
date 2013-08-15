@@ -19,6 +19,7 @@ public:
 	FileHeader();
 	~FileHeader();
     void setAL(stack<int>);
+    void setField(int,field);
     stack<int> getAL();
     void addField ( field );
     const int fl_size()const;

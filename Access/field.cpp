@@ -1,5 +1,9 @@
 #include "field.h"
 
+field::field(){
+
+}
+
 field::field( string n, char t, int l, int d, int k ) {
 	this->name = n;
 	this->type = t;

@@ -106,6 +106,7 @@ void field_W::on_field_add_clicked()
 
     field a(ui->field_name->text().toStdString(),x,ui->field_length->value(),d,y);
     fh->addField(a);
+    QMessageBox::information(this,"Info.","Agregado con exito");
     ui->field_decimal->setValue(1);
     ui->field_decimal->setEnabled(false);
     ui->field_key->setChecked(false);

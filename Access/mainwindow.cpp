@@ -1,7 +1,7 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "field_w.h"
-
+#include "mfields_w.h"
 
 #include <QMessageBox>
 #include <QDebug>
@@ -123,6 +123,16 @@ void MainWindow::on_actionModificar_triggered()
         do{
             mod_field=QInputDialog::getInt(this,"Modificar campos",qstr,0,0,fh->fl_size()-1,1,&ok);
         }while(!ok);
+        field fd=this->fh->getFL().at(mod_field);
+        vector<QString> names;
+        for(int i=0;i<fh->getFL().size();++i)
+            names.push_back( QString::fromStdString(fh->getFL().at(i).getName()) );
+        mFields_w *novo=new mFields_w();
+        novo->setField(fd,names);
+        novo->exec();
+        fd=novo->getField();
+        fh->setField(mod_field,fd);
+        delete novo;
     }
     else{//Si no existen campos
         QMessageBox::warning(this,"Error","No tiene campos para modificar");
