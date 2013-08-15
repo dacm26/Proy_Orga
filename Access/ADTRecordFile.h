@@ -11,10 +11,10 @@ public:
     ~ADTRecordFile();
     bool open(string);
     bool close();
-    int readRecord(int,int);
-    int writeRecord(const char*,int);
-    int updateRecord();
-    int deleteRecord(int,int);
+    string readRecord(int,int,int);
+    bool writeRecord(const char*,int,int,int);
+    bool updateRecord();
+    int deleteRecord(int,int,int);
     bool flush();
     bool seekg(int,ios_base::seekdir);
     bool seekp(int,ios_base::seekdir);

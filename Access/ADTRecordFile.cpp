@@ -2,6 +2,7 @@
 #include <string>
 #include <ios>
 #include <fstream>
+#include <sstream>
 using namespace std;
 
 ADTRecordFile::ADTRecordFile(){
@@ -37,32 +38,47 @@ bool ADTRecordFile::close(){
     return true;
 }
 
-int ADTRecordFile::readRecord(int p,int init){
-    /*
-     *No Implementado
-     */
-    return -1;
+string ADTRecordFile::readRecord(int p,int init,int size_record){
+    file.seekg(0,ios_base::beg);
+    file.seekg(init,ios_base::cur);
+    file.seekg((size_record*p),ios_base::cur);
+    char buffer[size_record];
+    file.read(buffer,size_record);
+    stringstream ss;
+    ss << buffer;
+    return ss.str();
 }
 
-int ADTRecordFile::writeRecord(const char* buffer,int init){
-    /*
-     *No Implementado
-     */
-    return -1;
+bool ADTRecordFile::writeRecord(const char* buffer,int where,int init,int size_record){
+    file.seekp(0,ios_base::beg);
+    file.seekp(init,ios_base::cur);
+    if(where == -1){
+        file.seekp(0,ios_base::end);
+        file.seekp(-2,ios_base::cur);
+        file.write(buffer,size_record);
+    }
+    else{
+    file.seekp((size_record*where),ios_base::cur);
+    file.write(buffer,size_record);
+    }
+    file.flush();
+    if(file.rdstate()!= 0)
+        return false;
+    return true;
 }
 
-int ADTRecordFile::updateRecord(){
-    /*
-     *No Implementado
-     */
-    return -1;
+bool ADTRecordFile::updateRecord(){
+
+    return this->flush();
 }
 
-int ADTRecordFile::deleteRecord(int p,int init){
-    /*
-     *No Implementado
-     */
-    return -1;
+int ADTRecordFile::deleteRecord(int p,int init,int size_record){
+    file.seekp(0,ios_base::beg);
+    file.seekp(init,ios_base::cur);
+    file.seekp((p*size_record),ios_base::cur);
+    file.write("*",1);
+    file.flush();
+    return (init+(p*size_record));//Para el availList
 }
 
 bool ADTRecordFile::flush(){
