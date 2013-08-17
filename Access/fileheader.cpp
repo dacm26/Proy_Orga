@@ -1,5 +1,7 @@
 #include "fileheader.h"
 #include <sstream>
+#include <iostream>
+using namespace std;
 FileHeader::FileHeader() {
 	
 }
@@ -42,7 +44,8 @@ const int FileHeader::getLength () const{//Obtiene la longitud del registro
 	return length;
 }
 
-const int FileHeader::fl_size()const{//Devuelve cuantos campos hay en el vector
+ int FileHeader::fl_size()const{//Devuelve cuantos campos hay en el vector
+    cout<< "fl_size: " << fieldlist.size()<<endl;
     return this->fieldlist.size();
 }
 
@@ -77,7 +80,10 @@ string FileHeader::toString()const{
         do{
             ss << availList.top() << ',';
         }while(!this->availList.empty());
-
+    else{
+        for(int i=0;i<100;i++)
+            ss << " ";
+    }
     ss << endl;
     return ss.str();
 }

@@ -18,6 +18,7 @@ field_W::field_W(QWidget *parent) :
     ui->field_decimal->setEnabled(false);
 }
 void field_W::copy_fh(FileHeader* f){
+    cout << "At copy_fh"<<endl;
     for(int i=0;i<f->fl_size();i++)
         fh->addField(f->getFL().at(i));
      fh->setAL(f->getAL());

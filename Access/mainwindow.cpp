@@ -26,7 +26,7 @@ MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
 {
-
+    init=0;
     ui->setupUi(this);
     this->o_file=new ADTRecordFile();
     this->setFixedSize(1370,710);//Se le asigna el tamanio deseado a la ventana principal
@@ -43,6 +43,7 @@ MainWindow::~MainWindow()
 
 void MainWindow::on_actionNuevo_triggered()
 {
+    init=0;
     if(!o_file->isOpen()){
         QString filename= QFileDialog::getSaveFileName(this,"Save As","/home");//Filters: Text Files (*.txt)::All Files(*.*)
         this->o_file->open(filename.toStdString());
@@ -55,7 +56,7 @@ void MainWindow::on_actionCrear_triggered()
 {
     if(o_file->isOpen()){
     novo= new field_W();//Se crea la ventana para crear campos
-    if(fh->fl_size()>0)
+    if( !(fh->fl_size()<=0 || fh->fl_size()>1000) )
         novo->copy_fh(fh);
     novo->exec();//se ejecuta la ventana
     fh=novo->getFields();//Obtiene el FieldList y AvailList
@@ -77,7 +78,8 @@ void MainWindow::on_actionSalir_triggered()
 void MainWindow::on_actionListar_triggered()
 {
     if(o_file->isOpen()){
-        if(fh->fl_size()==0){
+        cout << "tam: "<<fh->fl_size()<<endl;
+        if((fh->fl_size()<=0 || fh->fl_size()>1000)){
             QMessageBox::warning(this,"Error","No tiene campos que listar");
         }else{
         QStandardItemModel* model = new QStandardItemModel(1,1,this);//Se crea el modelo para la tabla
@@ -133,7 +135,7 @@ void MainWindow::on_actionListar_triggered()
 void MainWindow::on_actionModificar_triggered()
 {
     if(o_file->isOpen()){
-        if(fh->fl_size() > 0){//Si existen campos
+        if(!(fh->fl_size()<=0 || fh->fl_size()>1000)){//Si existen campos
             stringstream ss;
             bool ok;
             int mod_field;
@@ -175,6 +177,7 @@ void MainWindow::on_actionGuardar_triggered()
 
 void MainWindow::on_actionCerrar_triggered()
 {
+    init=0;
     if(!o_file->isOpen())
         QMessageBox::warning(this,"Error","No tiene un archivo abierto");
     else{
@@ -185,6 +188,7 @@ void MainWindow::on_actionCerrar_triggered()
 
 void MainWindow::on_actionAbrir_triggered()
 {
+    init=0;
     if(this->o_file->isOpen())
         QMessageBox::warning(this,"Error","No se pudo abrir el archivo, porque ya esta uno abierto");
     else{
@@ -193,15 +197,43 @@ void MainWindow::on_actionAbrir_triggered()
         if(!o_file->isOpen())
             QMessageBox::warning(this,"Error","No se pudo abrir el archivo");
     }
+    o_file->seekp(0,ios_base::end);
+    if(o_file->tellp()!=1){
+
+    }
 }
 
 void MainWindow::on_actionIntroducir_triggered()
 {
     if(o_file->isOpen()){
-        if(fh->fl_size()<=0)
+        if((fh->fl_size()<=0 || fh->fl_size()>1000))
             QMessageBox::warning(this,"Error","Necesita tener al menos un campo para poder crear un registro");
         else{
+            bool key_pass=false;
+            ui->actionCrear->setEnabled(false);
+            ui->actionModificar->setEnabled(false);
+            for(int i=0;i<fh->fl_size();++i){
+                if(fh->getFL().at(i).getKey()==1){
+                    key_pass=true;
+                    fh->fl_size();
+                }
+            }
+            if(!key_pass){
+                field f=fh->getFL().at(0);
+                f.setKey(1);
+                fh->setField(0,f);
+            }
+            o_file->seekp(0,ios_base::end);
+            if(o_file->tellp()==1){
+                o_file->writeRecord(fh->toString().c_str(),0,0,fh->toString().size());
+                o_file->seekp(0,ios_base::end);
+                o_file->seekp(-2,ios_base::cur);
+                init=o_file->tellp();
+                o_file->seekp(0,ios_base::beg);
+            }
+            else{
 
+            }
         }
     }
     else
@@ -211,7 +243,7 @@ void MainWindow::on_actionIntroducir_triggered()
 void MainWindow::on_actionBuscar_triggered()
 {
     if(o_file->isOpen()){
-        if(fh->fl_size()<=0)
+        if((fh->fl_size()<=0 || fh->fl_size()>1000))
             QMessageBox::warning(this,"Error","Necesita tener al menos un campo para poder crear un registro");
         else{
 
@@ -224,7 +256,7 @@ void MainWindow::on_actionBuscar_triggered()
 void MainWindow::on_actionBorrar_triggered()
 {
     if(o_file->isOpen()){
-        if(fh->fl_size()<=0)
+        if((fh->fl_size()<=0 || fh->fl_size()>1000))
             QMessageBox::warning(this,"Error","Necesita tener al menos un campo para poder crear un registro");
         else{
 
@@ -237,7 +269,7 @@ void MainWindow::on_actionBorrar_triggered()
 void MainWindow::on_actionListar_2_triggered()
 {
     if(o_file->isOpen()){
-        if(fh->fl_size()<=0)
+        if((fh->fl_size()<=0 || fh->fl_size()>1000))
             QMessageBox::warning(this,"Error","Necesita tener al menos un campo para poder crear un registro");
         else{
 
@@ -250,7 +282,7 @@ void MainWindow::on_actionListar_2_triggered()
 void MainWindow::on_actionCruzar_triggered()
 {
     if(o_file->isOpen()){
-        if(fh->fl_size()<=0)
+        if((fh->fl_size()<=0 || fh->fl_size()>1000))
             QMessageBox::warning(this,"Error","Necesita tener al menos un campo para poder crear un registro");
         else{
 

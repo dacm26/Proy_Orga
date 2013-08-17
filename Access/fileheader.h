@@ -22,7 +22,7 @@ public:
     void setField(int,field);
     stack<int> getAL();
     void addField ( field );
-    const int fl_size()const;
+    int fl_size()const;
     vector<field> getFL()const;
 	void removeField ( const int );
 	const int getLength () const;

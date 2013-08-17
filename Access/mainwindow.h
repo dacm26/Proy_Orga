@@ -49,6 +49,7 @@ public:
     field_W *novo;
     FileHeader *fh;
     ADTRecordFile* o_file;
+    int init;
 };
 
 #endif // MAINWINDOW_H
