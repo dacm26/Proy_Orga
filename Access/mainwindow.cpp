@@ -18,7 +18,7 @@ using namespace std;
 
 /*
  Pendiente:
- **Registros
+ **Registros --- trabajar con el AL en delete y buscar  records ---
  **Utilidades
  **Indices
 */
@@ -355,10 +355,59 @@ void MainWindow::on_actionBuscar_triggered()
             rec_bus=rec_bus-1;
             string record=o_file->readRecord(rec_bus,init,fh->getLength());
             cout << record << endl;
+            QStandardItemModel* model = new QStandardItemModel(1,1,this);//Se crea el modelo para la tabla
+            //Se crean las columnas de la tabla
+            for(int i=0;i<fh->fl_size();++i){
+                model->setHorizontalHeaderItem(i,new QStandardItem(QString(QString::fromStdString(fh->getFL().at(i).getName()))));
+            }
+            qstr="";
+            ss.str("");
+            string str;
+            str=this->toRecord(record);
+            cout<< "Record Listo para parsear: " << str << endl;
+            char* pch;
+            char * writable = new char[str.size() + 1];
+            copy(str.begin(), str.end(), writable);
+            writable[str.size()] = '\0';
+            pch= strtok (writable,",");
+            int j=0;
+            while(pch != NULL){
+                ss << pch;
+                qstr= QString::fromStdString(ss.str());
+                model->setItem(0,j,new QStandardItem(qstr));
+                pch = strtok (NULL, ",");
+                ++j;
+                ss.str("");
+            }
+            delete[] writable;
+            ui->table->setModel(model);//Asigna el Modelo a la tabla
         }
     }
     else
         QMessageBox::warning(this,"Error","No tiene ningun archivo abierto");
+}
+
+string MainWindow::toRecord(string rec){
+    stringstream ss;
+    int beg=0,end=0,beg2=0,buff_size=1;
+    for(int i=0;i<fh->fl_size();++i){
+        for(int j=beg;j<rec.size();++j){
+            if(rec.at(j)!='_'){
+                beg2=j;
+                end+=fh->getFL().at(i).getLength();
+                beg=end;
+                j=rec.size();
+            }
+        }
+        buff_size=end-beg2;
+        char buffer[buff_size];
+        size_t length=rec.copy(buffer,buff_size,beg2);
+        buffer[length]='\0';
+        ss << buffer;
+        if( !(i==(fh->fl_size()-1)) )
+            ss << ',';
+    }
+    return ss.str();
 }
 
 void MainWindow::on_actionBorrar_triggered()
@@ -400,6 +449,43 @@ void MainWindow::on_actionListar_2_triggered()
         else{
             if(n_rec==0)
                 QMessageBox::warning(this,"Error","Necesita tener al menos un registro para poder listar");
+            stringstream ss;
+            QString qstr;
+            ss.str("");
+            int rec_bus;
+            QStandardItemModel* model = new QStandardItemModel(1,1,this);//Se crea el modelo para la tabla
+            //Se crean las columnas de la tabla
+            for(int i=0;i<fh->fl_size();++i){
+                model->setHorizontalHeaderItem(i,new QStandardItem(QString(QString::fromStdString(fh->getFL().at(i).getName()))));
+            }
+            int pos=0;
+            for(int k=0;k<n_rec;++k){
+                rec_bus=k;
+                string record=o_file->readRecord(rec_bus,init,fh->getLength());
+                if(!(record.at(0)=='*')){
+                    qstr="";
+                    ss.str("");
+                    string str;
+                    str=this->toRecord(record);
+                    char* pch;
+                    char * writable = new char[str.size() + 1];
+                    copy(str.begin(), str.end(), writable);
+                    writable[str.size()] = '\0';
+                    pch= strtok (writable,",");
+                    int j=0;
+                    while(pch != NULL){
+                        ss << pch;
+                        qstr= QString::fromStdString(ss.str());
+                        model->setItem(pos,j,new QStandardItem(qstr));
+                        pch = strtok (NULL, ",");
+                        ++j;
+                        ss.str("");
+                    }
+                    delete[] writable;
+                    ++pos;
+                }
+            }
+            ui->table->setModel(model);//Asigna el Modelo a la tabla
         }
     }
     else

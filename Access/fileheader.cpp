@@ -45,7 +45,7 @@ const int FileHeader::getLength () const{//Obtiene la longitud del registro
 }
 
  int FileHeader::fl_size()const{//Devuelve cuantos campos hay en el vector
-    cout<< "fl_size: " << fieldlist.size()<<endl;
+    //cout<< "fl_size: " << fieldlist.size()<<endl;
     return this->fieldlist.size();
 }
 

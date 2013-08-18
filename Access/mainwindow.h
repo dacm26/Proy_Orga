@@ -3,6 +3,7 @@
 #include "field_w.h"
 #include <QMainWindow>
 #include <vector>
+#include <string>
 #include "ADTRecordFile.h"
 #include "fileheader.h"
 using namespace std;
@@ -16,6 +17,7 @@ class MainWindow : public QMainWindow
 
 public:
     explicit MainWindow(QWidget *parent = 0);
+    string toRecord(string);
     ~MainWindow();
 
 private slots:
