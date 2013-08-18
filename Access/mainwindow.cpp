@@ -464,7 +464,7 @@ void MainWindow::on_actionListar_2_triggered()
                 model->setHorizontalHeaderItem(i,new QStandardItem(QString(QString::fromStdString(fh->getFL().at(i).getName()))));
             }
             int pos=0;
-            for(int k=0;k<n_rec;++k){
+            for(int k=0;k<n_rec+fh->getAL().size();++k){
                 rec_bus=k;
                 string record=o_file->readRecord(rec_bus,init,fh->getLength());
                 if(!(record.at(0)=='*')){
