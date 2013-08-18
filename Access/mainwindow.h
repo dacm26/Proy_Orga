@@ -51,6 +51,7 @@ public:
     ADTRecordFile* o_file;
     int init;
     int n_rec;
+    int init_avail;
 };
 
 #endif // MAINWINDOW_H

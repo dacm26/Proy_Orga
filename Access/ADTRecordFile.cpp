@@ -49,11 +49,30 @@ string ADTRecordFile::readRecord(int p,int init,int size_record){
     return ss.str();
 }
 
+int ADTRecordFile::read(char* buffer,int s){
+    if (!file.is_open())
+        return -1;
+    file.read(buffer,s);
+    return file.gcount();
+}
+
+int ADTRecordFile::write(const char* buffer,int s){
+    if (!file.is_open())
+        return -1;
+    file.write(buffer,s);
+    if(file.rdstate()!= 0)
+        return -1;
+
+    return s;
+}
+
 bool ADTRecordFile::writeRecord(const char* buffer,int where,int init,int size_record){
     file.seekp(0,ios_base::beg);
     file.seekp(init,ios_base::cur);
     if(where == -1){
         file.seekp(0,ios_base::end);
+        file.seekp(-2,ios_base::cur);
+        file.seekp(1,ios_base::cur);
         file.write(buffer,size_record);
     }
     else{

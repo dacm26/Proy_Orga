@@ -13,9 +13,9 @@ class FileHeader {
 
 private:
 	stack<int> availList;
+    vector<field> fieldlist;
 
 public:
-    vector<field> fieldlist;
 	FileHeader();
 	~FileHeader();
     void setAL(stack<int>);

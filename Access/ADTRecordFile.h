@@ -11,6 +11,8 @@ public:
     ~ADTRecordFile();
     bool open(string);
     bool close();
+    int read(char*,int);
+    int write(const char*,int);
     string readRecord(int,int,int);
     bool writeRecord(const char*,int,int,int);
     bool updateRecord();

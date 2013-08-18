@@ -27,6 +27,8 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     init=0;
+    n_rec=0;
+    init_avail=0;
     ui->setupUi(this);
     this->o_file=new ADTRecordFile();
     this->setFixedSize(1370,710);//Se le asigna el tamanio deseado a la ventana principal
@@ -234,7 +236,11 @@ void MainWindow::on_actionAbrir_triggered()
                         ui->actionModificar->setEnabled(false);
                         this->n_rec=(o_file->tellg()-init)/fh->getLength();
                     }
+                    init_avail=init-101;
                     cout << "Numero de Records: " << n_rec << endl;
+                    o_file->seekp(init_avail,ios_base::beg);
+                    o_file->write("1",1);
+                    cout << "Donde comienza el Avail List: " << init_avail << endl;
                     break;
                 }
                 else{
@@ -308,9 +314,9 @@ void MainWindow::on_actionIntroducir_triggered()
                 o_file->seekp(0,ios_base::beg);
             }
             else{
-                string record="0801199412345________________________JOSUES_19M__12345.12";
+                string record="0801199076120_______________________CLAUDIA_23F_987654.13";
                 cout <<record << endl;
-                o_file->writeRecord(record.c_str(),-1,init,record.size());
+                o_file->writeRecord(record.c_str(),1,init,record.size());
             }
         }
     }
@@ -324,7 +330,7 @@ void MainWindow::on_actionBuscar_triggered()
         if((fh->fl_size()<=0 || fh->fl_size()>1000))
             QMessageBox::warning(this,"Error","Necesita tener al menos un campo para poder crear un registro");
         else{
-
+            if(n_rec==0)
         }
     }
     else
