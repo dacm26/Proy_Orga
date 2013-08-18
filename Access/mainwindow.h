@@ -46,6 +46,8 @@ private slots:
 
     void on_actionCruzar_triggered();
 
+    void on_actionImprimir_triggered();
+
 public:
     Ui::MainWindow *ui;
     field_W *novo;

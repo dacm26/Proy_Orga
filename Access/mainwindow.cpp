@@ -6,6 +6,11 @@
 
 #include <QMessageBox>
 #include <QDebug>
+#include <QTextDocument>
+#include <QtPrintSupport/QPrinter>
+#include <QtPrintSupport/QPrintEngine>
+#include <QtPrintSupport/QPrintDialog>
+#include <QPainter>
 #include <QFileDialog>
 #include <QStandardItemModel>
 #include <QStandardItem>
@@ -18,7 +23,7 @@ using namespace std;
 
 /*
  Pendiente:
- **Registros --- trabajar con el AL en delete y buscar  records ---
+ **Registros --- A falta de Imprimir en PDF y la ventana dinamica ---
  **Utilidades
  **Indices
 */
@@ -321,15 +326,14 @@ void MainWindow::on_actionIntroducir_triggered()
             if(o_file->tellp()==1){
                 o_file->writeRecord(fh->toString().c_str(),0,0,fh->toString().size());
                 o_file->seekp(0,ios_base::end);
-                o_file->seekp(-2,ios_base::cur);
                 init=o_file->tellp();
-                o_file->seekp(0,ios_base::beg);
             }
-            else{
                 //Recordar que en el AL se guarda el registro+1 ya que con 0 tira problemas
-                string record="0801199076120_______________________CLAUDIA_23F_987654.13";
-                o_file->writeRecord(record.c_str(),1,init,record.size());
-            }
+                string record="0801199076110_______________________CLAUDIA_23F_987654.13";
+                o_file->writeRecord(record.c_str(),0,init,record.size());
+                cout << "Insertar sin implementacion"<<endl;
+                ++n_rec;
+
         }
     }
     else
@@ -351,11 +355,24 @@ void MainWindow::on_actionBuscar_triggered()
             bool ok=false;
             int rec_bus;
             do{
-            rec_bus=QInputDialog::getInt(this,"Buscar Registros",qstr,0,1,n_rec,1,&ok);
+                rec_bus=QInputDialog::getInt(this,"Buscar Registros",qstr,0,1,n_rec,1,&ok);
             }while(!ok);
-            rec_bus=rec_bus-1;
+            int z=0;
+            int size_tot=n_rec+(int)fh->getAL().size();
+            string y;
+            for(int i=0;i<size_tot;++i){
+                y=o_file->readRecord(i,init,fh->getLength());
+                cout << "i: " << i << endl;
+                if( !(y.at(0)=='*') ){
+                    ++z;
+
+                }
+                if ((z)==rec_bus){
+                    rec_bus=i;
+                    break;
+                }
+            }
             string record=o_file->readRecord(rec_bus,init,fh->getLength());
-            cout << record << endl;
             QStandardItemModel* model = new QStandardItemModel(1,1,this);//Se crea el modelo para la tabla
             //Se crean las columnas de la tabla
             for(int i=0;i<fh->fl_size();++i){
@@ -365,7 +382,6 @@ void MainWindow::on_actionBuscar_triggered()
             ss.str("");
             string str;
             str=this->toRecord(record);
-            cout<< "Record Listo para parsear: " << str << endl;
             char* pch;
             char * writable = new char[str.size() + 1];
             copy(str.begin(), str.end(), writable);
@@ -428,10 +444,21 @@ void MainWindow::on_actionBorrar_triggered()
             do{
                 rec_bus=QInputDialog::getInt(this,"Eliminar Registros",qstr,0,1,n_rec,1,&ok);
             }while(!ok);
-            rec_bus=rec_bus-1;
+            int z=0;
+            int size_tot=n_rec+(int)fh->getAL().size();
+            string y;
+            for(int i=0;i<size_tot;++i){
+                y=o_file->readRecord(i,init,fh->getLength());
+                if( !(y.at(0)=='*') ){
+                    ++z;
+                }
+                if ((z)==rec_bus){
+                    rec_bus=i;
+                    break;
+                }
+            }
             o_file->deleteRecord(rec_bus,init,fh->getLength());
             const int toS=rec_bus+1;
-            cout<< "toS: " << toS << endl;
             fh->addIndex(toS);//Recordar que en el AL se guarda la pos +1;
             ss << toS;
             int digitos=ss.str().size()+1;
@@ -509,4 +536,26 @@ void MainWindow::on_actionCruzar_triggered()
     }
     else
         QMessageBox::warning(this,"Error","No tiene ningun archivo abierto");
+}
+
+void MainWindow::on_actionImprimir_triggered()
+{
+    QString fileName = QFileDialog::getSaveFileName(this, tr("Save File"),"untitled",tr("PDF Document (*.pdf)"));
+    QPrinter printer;
+    printer.setOutputFormat(QPrinter::PdfFormat);
+    printer.setOutputFileName(fileName);
+    QPainter painter;
+    if (! painter.begin(&printer)) { // failed to open file
+        qWarning("failed to open file, is it writable?");
+        return ;
+    }
+    on_actionListar_2_triggered();
+    painter.drawRect(ui->table->contentsRect());
+    if (! printer.newPage()) {
+        qWarning("failed in flushing page to disk, disk full?");
+        return ;
+    }
+    painter.drawText(10, 10, "Test 2");
+
+    painter.end();
 }
