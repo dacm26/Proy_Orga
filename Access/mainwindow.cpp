@@ -209,24 +209,34 @@ void MainWindow::on_actionAbrir_triggered()
             stringstream ss;
             int j=0;
             field f;
+            int toM=0;
+            int y=0;
             while(o_file->file.good()){
                 getline(o_file->file,line);
                 if((line.c_str())[0]=='@'){
                     char* pch;
                     char * writable = new char[line.size() + 1];
-                    copy(line.begin(), line.end(), writable);
+                    copy(line.begin()+1, line.end(), writable);
                     writable[line.size()] = '\0';
                     pch= strtok (writable,",");
                     while(pch != NULL){
                         ss << pch;
-                        if( !(atoi(ss.str().c_str()) == NULL) ){
+                        cout << ss.str() << endl;
+                        if((atoi(ss.str().c_str())>0) ){
+                            cout << "Hay papadas para el AL"<<endl;
+                            cout << ss.str() << endl;
+                            y=ss.str().size()+1;
+                            toM+=y;
                             fh1->addIndex((atoi(ss.str().c_str())));
                         }
                         else{
                             cout << "No hay nada para el AL"<<endl;
                             break;
                         }
+                        pch = strtok (NULL, ",");
+                        ss.str("");
                     }
+                    cout<<"Tamanio AL: " << fh1->getAL().size() << endl;
                     init=o_file->tellg();
                     cout<< "Init: " << init << endl;
                     o_file->seekg(0,ios_base::end);
@@ -238,10 +248,9 @@ void MainWindow::on_actionAbrir_triggered()
                         ui->actionModificar->setEnabled(false);
                         this->n_rec=(o_file->tellg()-init)/fh->getLength();
                     }
-                    init_avail=init-101;
+                    init_avail=init-101+toM;
                     cout << "Numero de Records: " << n_rec << endl;
                     o_file->seekp(init_avail,ios_base::beg);
-                    o_file->write("1",1);
                     cout << "Donde comienza el Avail List: " << init_avail << endl;
                     break;
                 }
@@ -316,8 +325,8 @@ void MainWindow::on_actionIntroducir_triggered()
                 o_file->seekp(0,ios_base::beg);
             }
             else{
+                //Recordar que en el AL se guarda el registro+1 ya que con 0 tira problemas
                 string record="0801199076120_______________________CLAUDIA_23F_987654.13";
-                cout <<record << endl;
                 o_file->writeRecord(record.c_str(),1,init,record.size());
             }
         }
@@ -334,6 +343,18 @@ void MainWindow::on_actionBuscar_triggered()
         else{
             if(n_rec==0)
                 QMessageBox::warning(this,"Error","Necesita tener al menos un registro para poder buscar");
+            stringstream ss;
+            ss <<"Hay un total de " << n_rec << " registros. Ingrese el que quiere buscar";
+            QString qstr= QString::fromStdString(ss.str());
+            ss.str("");
+            bool ok=false;
+            int rec_bus;
+            do{
+            rec_bus=QInputDialog::getInt(this,"Buscar Registros",qstr,0,1,n_rec,1,&ok);
+            }while(!ok);
+            rec_bus=rec_bus-1;
+            string record=o_file->readRecord(rec_bus,init,fh->getLength());
+            cout << record << endl;
         }
     }
     else
@@ -348,6 +369,23 @@ void MainWindow::on_actionBorrar_triggered()
         else{
             if(n_rec==0)
                 QMessageBox::warning(this,"Error","Necesita tener al menos un registro para poder borrar");
+            stringstream ss;
+            ss <<"Hay un total de " << n_rec << " registros. Ingrese el que quiere eliminar";
+            QString qstr= QString::fromStdString(ss.str());
+            ss.str("");
+            bool ok=false;
+            int rec_bus;
+            do{
+                rec_bus=QInputDialog::getInt(this,"Eliminar Registros",qstr,0,1,n_rec,1,&ok);
+            }while(!ok);
+            rec_bus=rec_bus-1;
+            fh->addIndex(o_file->deleteRecord(rec_bus,init,fh->getLength()));//Recordar que en el AL se guarda la pos +1;
+            ss << rec_bus;
+            int digitos=ss.str().size()+1;
+            ss << ',';
+            o_file->writeRecord(ss.str().c_str(),0,init_avail,digitos);
+            init_avail+=digitos;
+            QMessageBox::information(this,"Info.","Eliminacion con exito");
         }
     }
     else

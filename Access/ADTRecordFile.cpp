@@ -44,6 +44,7 @@ string ADTRecordFile::readRecord(int p,int init,int size_record){
     file.seekg((size_record*p),ios_base::cur);
     char buffer[size_record];
     file.read(buffer,size_record);
+    buffer[size_record]='\0';
     stringstream ss;
     ss << buffer;
     return ss.str();
@@ -96,7 +97,7 @@ int ADTRecordFile::deleteRecord(int p,int init,int size_record){
     file.seekp((p*size_record),ios_base::cur);
     file.write("*",1);
     file.flush();
-    return (init+(p*size_record));//Para el availList
+    return p+1;//Para el availList
 }
 
 bool ADTRecordFile::flush(){
