@@ -1,4 +1,4 @@
-#include "mainwindow.h"
+﻿#include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "field_w.h"
 #include "mfields_w.h"
@@ -13,13 +13,13 @@
 
 #include <iostream>
 #include <sstream>
+#include <stdlib.h>
 using namespace std;
 
 /*
  Pendiente:
  **Registros
  **Utilidades
- **Archivos
  **Indices
 */
 MainWindow::MainWindow(QWidget *parent) :
@@ -188,6 +188,7 @@ void MainWindow::on_actionCerrar_triggered()
 
 void MainWindow::on_actionAbrir_triggered()
 {
+    FileHeader* fh1=new FileHeader();
     init=0;
     if(this->o_file->isOpen())
         QMessageBox::warning(this,"Error","No se pudo abrir el archivo, porque ya esta uno abierto");
@@ -199,9 +200,75 @@ void MainWindow::on_actionAbrir_triggered()
     }
     o_file->seekp(0,ios_base::end);
     if(o_file->tellp()!=1){
-
+            string line;
+            o_file->seekg(0,ios_base::beg);
+            stringstream ss;
+            int j=0;
+            field f;
+            while(o_file->file.good()){
+                getline(o_file->file,line);
+                if((line.c_str())[0]=='@'){
+                    cout << "Llego aqui"<<endl;
+                    char* pch;
+                    char * writable = new char[line.size() + 1];
+                    copy(line.begin(), line.end(), writable);
+                    writable[line.size()] = '\0';
+                    pch= strtok (writable,",");
+                    while(pch != NULL){
+                        ss << pch;
+                        if( !(atoi(ss.str().c_str()) == NULL) ){
+                            fh1->addIndex((atoi(ss.str().c_str())));
+                        }
+                        else{
+                            cout << "No hay nada para el AL"<<endl;
+                            break;
+                        }
+                    }
+                    init=o_file->tellg();
+                    fh=fh1;
+                    break;
+                }
+                else{
+                    char* pch;
+                    char * writable = new char[line.size() + 1];
+                    copy(line.begin(), line.end(), writable);
+                    writable[line.size()] = '\0';
+                    pch= strtok (writable,",");
+                    while(pch != NULL){
+                        ss << pch;
+                        if (j==0)
+                        {
+                            f.setName(ss.str());
+                            ++j;
+                        }
+                        else if(j==1){
+                            f.setType((ss.str().c_str())[0]);
+                            ++j;
+                        }
+                        else if(j==2){
+                            f.setLength(atoi(ss.str().c_str()));
+                            ++j;
+                        }
+                        else if(j==3){
+                            f.setDecimal(atoi(ss.str().c_str()));
+                            ++j;
+                        }
+                        else if(j==4){
+                            f.setKey(atoi(ss.str().c_str()));
+                            j=0;
+                        }
+                        pch = strtok (NULL, ",");
+                        ss.str("");
+                    }
+                    //cout << "aqui 1"<<endl;
+                    delete[] writable;
+                    //cout << "aqui 2"<<endl;
+                    fh1->addField(f);
+                    //cout << "aqui 3"<<endl;
+                }
+            }
+        }
     }
-}
 
 void MainWindow::on_actionIntroducir_triggered()
 {

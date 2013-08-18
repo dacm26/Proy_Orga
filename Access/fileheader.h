@@ -12,10 +12,10 @@ using namespace std;
 class FileHeader {
 
 private:
-    vector<field> fieldlist;
 	stack<int> availList;
 
 public:
+    vector<field> fieldlist;
 	FileHeader();
 	~FileHeader();
     void setAL(stack<int>);

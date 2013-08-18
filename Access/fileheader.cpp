@@ -73,7 +73,7 @@ string FileHeader::toString()const{
         ss << this->fieldlist.at(i).getType() << ',';
         ss << this->fieldlist.at(i).getLength() << ',';
         ss << this->fieldlist.at(i).getDecimal() << ',';
-        ss << this->fieldlist.at(i).getKey() << ';' << endl;
+        ss << this->fieldlist.at(i).getKey() << endl;
     }
     ss << '@';
     if(!availList.empty())
