@@ -97,7 +97,7 @@ int ADTRecordFile::deleteRecord(int p,int init,int size_record){
     file.seekp((p*size_record),ios_base::cur);
     file.write("*",1);
     file.flush();
-    return p+1;//Para el availList
+    return p;//Para el availList
 }
 
 bool ADTRecordFile::flush(){

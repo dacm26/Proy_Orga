@@ -252,6 +252,7 @@ void MainWindow::on_actionAbrir_triggered()
                     cout << "Numero de Records: " << n_rec << endl;
                     o_file->seekp(init_avail,ios_base::beg);
                     cout << "Donde comienza el Avail List: " << init_avail << endl;
+                    n_rec-=fh->getAL().size();
                     break;
                 }
                 else{
@@ -428,12 +429,16 @@ void MainWindow::on_actionBorrar_triggered()
                 rec_bus=QInputDialog::getInt(this,"Eliminar Registros",qstr,0,1,n_rec,1,&ok);
             }while(!ok);
             rec_bus=rec_bus-1;
-            fh->addIndex(o_file->deleteRecord(rec_bus,init,fh->getLength()));//Recordar que en el AL se guarda la pos +1;
-            ss << rec_bus;
+            o_file->deleteRecord(rec_bus,init,fh->getLength());
+            const int toS=rec_bus+1;
+            cout<< "toS: " << toS << endl;
+            fh->addIndex(toS);//Recordar que en el AL se guarda la pos +1;
+            ss << toS;
             int digitos=ss.str().size()+1;
             ss << ',';
             o_file->writeRecord(ss.str().c_str(),0,init_avail,digitos);
             init_avail+=digitos;
+            --n_rec;
             QMessageBox::information(this,"Info.","Eliminacion con exito");
         }
     }
