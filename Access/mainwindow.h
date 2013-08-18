@@ -50,6 +50,7 @@ public:
     FileHeader *fh;
     ADTRecordFile* o_file;
     int init;
+    int n_rec;
 };
 
 #endif // MAINWINDOW_H

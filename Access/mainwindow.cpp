@@ -208,7 +208,6 @@ void MainWindow::on_actionAbrir_triggered()
             while(o_file->file.good()){
                 getline(o_file->file,line);
                 if((line.c_str())[0]=='@'){
-                    cout << "Llego aqui"<<endl;
                     char* pch;
                     char * writable = new char[line.size() + 1];
                     copy(line.begin(), line.end(), writable);
@@ -225,7 +224,17 @@ void MainWindow::on_actionAbrir_triggered()
                         }
                     }
                     init=o_file->tellg();
+                    cout<< "Init: " << init << endl;
+                    o_file->seekg(0,ios_base::end);
+                    cout << "Donde deberia: " << o_file->tellg() << endl;
                     fh=fh1;
+                    cout<< "Length por registro: " << fh->getLength() << endl;
+                    if(init<o_file->tellg()){
+                        ui->actionCrear->setEnabled(false);
+                        ui->actionModificar->setEnabled(false);
+                        this->n_rec=(o_file->tellg()-init)/fh->getLength();
+                    }
+                    cout << "Numero de Records: " << n_rec << endl;
                     break;
                 }
                 else{
@@ -299,7 +308,9 @@ void MainWindow::on_actionIntroducir_triggered()
                 o_file->seekp(0,ios_base::beg);
             }
             else{
-
+                string record="0801199412345________________________JOSUES_19M__12345.12";
+                cout <<record << endl;
+                o_file->writeRecord(record.c_str(),-1,init,record.size());
             }
         }
     }
