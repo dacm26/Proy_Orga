@@ -183,6 +183,8 @@ void MainWindow::on_actionCerrar_triggered()
     if(!o_file->isOpen())
         QMessageBox::warning(this,"Error","No tiene un archivo abierto");
     else{
+        QStandardItemModel* model = new QStandardItemModel(1,1,this);//Se crea el modelo para la tabla
+        ui->table->setModel(model);
         this->o_file->flush();
         this->o_file->close();
     }
@@ -328,9 +330,10 @@ void MainWindow::on_actionBuscar_triggered()
 {
     if(o_file->isOpen()){
         if((fh->fl_size()<=0 || fh->fl_size()>1000))
-            QMessageBox::warning(this,"Error","Necesita tener al menos un campo para poder crear un registro");
+            QMessageBox::warning(this,"Error","Necesita tener al menos un campo para poder buscar un registro");
         else{
             if(n_rec==0)
+                QMessageBox::warning(this,"Error","Necesita tener al menos un registro para poder buscar");
         }
     }
     else
@@ -341,9 +344,10 @@ void MainWindow::on_actionBorrar_triggered()
 {
     if(o_file->isOpen()){
         if((fh->fl_size()<=0 || fh->fl_size()>1000))
-            QMessageBox::warning(this,"Error","Necesita tener al menos un campo para poder crear un registro");
+            QMessageBox::warning(this,"Error","Necesita tener al menos un campo para poder borrar un registro");
         else{
-
+            if(n_rec==0)
+                QMessageBox::warning(this,"Error","Necesita tener al menos un registro para poder borrar");
         }
     }
     else
@@ -354,9 +358,10 @@ void MainWindow::on_actionListar_2_triggered()
 {
     if(o_file->isOpen()){
         if((fh->fl_size()<=0 || fh->fl_size()>1000))
-            QMessageBox::warning(this,"Error","Necesita tener al menos un campo para poder crear un registro");
+            QMessageBox::warning(this,"Error","Necesita tener al menos un campo para poder listar los registros");
         else{
-
+            if(n_rec==0)
+                QMessageBox::warning(this,"Error","Necesita tener al menos un registro para poder listar");
         }
     }
     else
@@ -367,9 +372,10 @@ void MainWindow::on_actionCruzar_triggered()
 {
     if(o_file->isOpen()){
         if((fh->fl_size()<=0 || fh->fl_size()>1000))
-            QMessageBox::warning(this,"Error","Necesita tener al menos un campo para poder crear un registro");
+            QMessageBox::warning(this,"Error","Necesita tener al menos un campo para poder cruzar un registro");
         else{
-
+            if(n_rec==0)
+                QMessageBox::warning(this,"Error","Necesita tener al menos un registro para poder cruzar");
         }
     }
     else
