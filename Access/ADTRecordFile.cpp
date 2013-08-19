@@ -72,8 +72,7 @@ bool ADTRecordFile::writeRecord(const char* buffer,int where,int init,int size_r
     file.seekp(init,ios_base::cur);
     if(where == -1){
         file.seekp(0,ios_base::end);
-        file.seekp(-2,ios_base::cur);
-        file.seekp(1,ios_base::cur);
+
         file.write(buffer,size_record);
     }
     else{

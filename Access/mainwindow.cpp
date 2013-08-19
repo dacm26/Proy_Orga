@@ -335,15 +335,107 @@ void MainWindow::on_actionIntroducir_triggered()
                 o_file->seekp(0,ios_base::end);
                 init=o_file->tellp();
             }
-                //Recordar que en el AL se guarda el registro+1 ya que con 0 tira problemas
-                string record="0801199298765_______________________CLAUDIO_23M_987654.13";
-                o_file->writeRecord(record.c_str(),1,init,record.size());
-                cout << "Insertar sin implementacion"<<endl;
-                ++n_rec;
-
+            //Recordar que en el AL se guarda el registro+1 ya que con 0 tira problemas
+            //string record="0801199076110_______________________CLAUDIA_23F_987654.13";
+            stringstream ss,ss1;
+            int x;
+            double y;
+            string z;
+            bool ok;
+            int toFill=0;
+            for(int i=0;i<fh->fl_size();++i){
+                ok=false;
+                if(fh->getFL().at(i).getType()=='0'){
+                    ss1<< "Ingrese "<< fh->getFL().at(i).getName();
+                    string asd=ss1.str();
+                    string other="";
+                    ss1.str("");
+                    do{
+                        x=QInputDialog::getInt(this,"Add Record",(QString::fromStdString(asd)),0,0,99999999999999999999,1,&ok);
+                        ss1 << x;
+                        if(ss1.str().size()>fh->getFL().at(i).getLength())
+                            ok=false;
+                        else if(ss1.str().size()<fh->getFL().at(i).getLength()){
+                            cout << "Entro 2"<<endl;
+                            other=ss1.str();
+                            ss1.str("");
+                            toFill=fh->getFL().at(i).getLength()-other.size();
+                            for(int i=0;i<toFill;++i)
+                                ss << '_';
+                            //ss << setfill('_')<<setw(toFill);
+                            ss << other;
+                        }
+                        else{
+                            cout << "Entro 3"<<endl;
+                            ss << x;
+                        }
+                        ss1.str("");
+                    }while(!ok);
+                }
+                else if(fh->getFL().at(i).getType()=='1'){
+                    ss1<< "Ingrese "<< fh->getFL().at(i).getName();
+                    string asd=ss1.str();
+                    string other="";
+                    do{
+                        y=QInputDialog::getDouble(this,"Add Record",(QString::fromStdString(ss1.str())),0,0,99999999999999999999.99,fh->getFL().at(i).getDecimal(),&ok);
+                        ss1.str("");
+                        ss1 << y;
+                        if(ss1.str().size()>fh->getFL().at(i).getLength())
+                            ok=false;
+                        else if(ss1.str().size()<fh->getFL().at(i).getLength()){
+                            other=ss1.str();
+                            cout << "Entro 2"<<endl;
+                            toFill=fh->getFL().at(i).getLength()-other.size();
+                            for(int i=0;i<toFill;++i)
+                                ss << '_';
+                            //ss << setfill('_')<<setw(toFill);
+                            ss << other;
+                        }
+                        else{
+                            cout << "Entro 3"<<endl;
+                            ss << y;
+                        }
+                        ss1.str("");
+                    }while(!ok);
+                    ss1.str("");
+                }
+                else{
+                    ss1<< "Ingrese "<< fh->getFL().at(i).getName();
+                    string asd=ss1.str();
+                    string other="";
+                    ss1.str("");
+                    do{
+                        QString text = QInputDialog::getText(this, ("Add Record"),
+                                                             (QString::fromStdString(asd)), QLineEdit::Normal,
+                                                             QDir::home().dirName(), &ok);
+                        z=text.toStdString();
+                        ss1 << z;
+                        if(ss1.str().size()>fh->getFL().at(i).getLength())
+                            ok=false;
+                        else if(ss1.str().size()<fh->getFL().at(i).getLength()){
+                            other=ss1.str();
+                            cout << "Entro 2"<<endl;
+                            ss1.str("");
+                            toFill=fh->getFL().at(i).getLength()-other.size();
+                            for(int i=0;i<toFill;++i)
+                                ss << '_';
+                            //ss << setfill('_')<<setw(toFill);
+                            ss << other;
+                        }
+                        else{
+                            cout << "Entro 3"<<endl;
+                            ss << z;
+                        }
+                        ss1.str("");
+                    }while(!ok);
+                    ss1.str("");
+                }
+            }
+            cout << ss.str() << endl;
+            o_file->writeRecord(ss.str().c_str(),fh->getIndex(),init,fh->getLength());
+            ++n_rec;
         }
-    }
-    else
+    }else
         QMessageBox::warning(this,"Error","No tiene ningun archivo abierto");
 }
 
