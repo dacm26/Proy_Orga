@@ -197,6 +197,8 @@ void MainWindow::on_actionCerrar_triggered()
     else{
         QStandardItemModel* model = new QStandardItemModel(1,1,this);//Se crea el modelo para la tabla
         ui->table->setModel(NULL);
+        ui->actionCrear->setEnabled(true);
+        ui->actionModificar->setEnabled(true);
         this->o_file->flush();
         this->o_file->close();
     }
@@ -329,10 +331,12 @@ void MainWindow::on_actionIntroducir_triggered()
                 f.setKey(1);
                 fh->setField(0,f);
             }
+            int where=0;
             o_file->seekp(0,ios_base::end);
             if(o_file->tellp()==1){
                 o_file->writeRecord(fh->toString().c_str(),0,0,fh->toString().size());
                 o_file->seekp(0,ios_base::end);
+                where=-2;
                 init=o_file->tellp();
             }
             //Recordar que en el AL se guarda el registro+1 ya que con 0 tira problemas
@@ -432,7 +436,14 @@ void MainWindow::on_actionIntroducir_triggered()
                 }
             }
             cout << ss.str() << endl;
-            o_file->writeRecord(ss.str().c_str(),fh->getIndex(),init,fh->getLength());
+            if(where==-2){
+                o_file->writeRecord(ss.str().c_str(),where,init,fh->getLength());
+
+            }
+            else{
+                o_file->writeRecord(ss.str().c_str(),fh->getIndex(),init,fh->getLength());
+
+           }
             ++n_rec;
         }
     }else
