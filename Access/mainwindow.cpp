@@ -18,6 +18,7 @@
 
 #include <iostream>
 #include <sstream>
+#include <iomanip>
 #include <stdlib.h>
 using namespace std;
 
@@ -189,7 +190,7 @@ void MainWindow::on_actionCerrar_triggered()
         QMessageBox::warning(this,"Error","No tiene un archivo abierto");
     else{
         QStandardItemModel* model = new QStandardItemModel(1,1,this);//Se crea el modelo para la tabla
-        ui->table->setModel(model);
+        ui->table->setModel(NULL);
         this->o_file->flush();
         this->o_file->close();
     }
@@ -532,6 +533,7 @@ void MainWindow::on_actionCruzar_triggered()
         else{
             if(n_rec==0)
                 QMessageBox::warning(this,"Error","Necesita tener al menos un registro para poder cruzar");
+
         }
     }
     else
@@ -540,22 +542,79 @@ void MainWindow::on_actionCruzar_triggered()
 
 void MainWindow::on_actionImprimir_triggered()
 {
-    QString fileName = QFileDialog::getSaveFileName(this, tr("Save File"),"untitled",tr("PDF Document (*.pdf)"));
-    QPrinter printer;
-    printer.setOutputFormat(QPrinter::PdfFormat);
-    printer.setOutputFileName(fileName);
-    QPainter painter;
-    if (! painter.begin(&printer)) { // failed to open file
-        qWarning("failed to open file, is it writable?");
-        return ;
-    }
-    on_actionListar_2_triggered();
-    painter.drawRect(ui->table->contentsRect());
-    if (! printer.newPage()) {
-        qWarning("failed in flushing page to disk, disk full?");
-        return ;
-    }
-    painter.drawText(10, 10, "Test 2");
+    if(o_file->isOpen()){
+        if((fh->fl_size()<=0 || fh->fl_size()>1000))
+            QMessageBox::warning(this,"Error","Necesita tener al menos un campo para poder imprimir");
+        else{
+            QString fileName = QFileDialog::getSaveFileName(this, tr("Save File"),"untitled",tr("PDF Document (*.pdf)"));
+            QPrinter printer;
+            printer.setOutputFormat(QPrinter::PdfFormat);
+            printer.setOutputFileName(fileName);
+            QPainter painter;
+            if (! painter.begin(&printer)) { // failed to open file
+                qWarning("failed to open file, is it writable?");
+                return ;
+            }
 
-    painter.end();
+            painter.drawText(10, 10, "Campos");
+            stringstream ss;
+            ss << "Nombre" << "\t\t"<<"Tipo"<<"\t\t"<<"Longitud"<<"\t\t"<<"Decimal"<<"\t\t"<<"Llave";
+            painter.drawText(20,100,QString::fromStdString(ss.str()));
+            ss.str("");
+            string x;
+            string y;
+            for(int i=0;i<fh->fl_size();++i){
+                if(fh->getFL().at(i).getType()=='0')
+                    x="Entero";
+                if(fh->getFL().at(i).getType()=='1')
+                    x="Real";
+                if(fh->getFL().at(i).getType()=='2')
+                    x="Cadena";
+                if(fh->getFL().at(i).getKey()==0)
+                    y="No es Llave";
+                if(fh->getFL().at(i).getKey()==1)
+                    y="Es Llave";
+                ss << fh->getFL().at(i).getName() << "\t\t"<<x<<"\t\t"<<fh->getFL().at(i).getLength()<<"\t\t"<<fh->getFL().at(i).getDecimal()<<"\t\t"<<y;
+                painter.drawText(20,50*(i+3),QString::fromStdString(ss.str()));
+                ss.str("");
+            }
+            if (! printer.newPage()) {
+                qWarning("failed in flushing page to disk, disk full?");
+                return ;
+            }
+            painter.drawText(10, 10, "Registros");
+            ss.str("");
+
+            int rec_bus;
+            for(int k=0;k<n_rec+fh->getAL().size();++k){
+                rec_bus=k;
+                string record=o_file->readRecord(rec_bus,init,fh->getLength());
+                if(!(record.at(0)=='*')){
+                    ss.str("");
+                    string str;
+                    str=this->toRecord(record);
+                    char* pch;
+                    char * writable = new char[str.size() + 1];
+                    copy(str.begin(), str.end(), writable);
+                    writable[str.size()] = '\0';
+                    pch= strtok (writable,",");
+                    int j=0;
+                    while(pch != NULL){
+                        ss << pch << "\t";
+                        pch = strtok (NULL, ",");
+                        ++j;
+                    }
+
+                    delete[] writable;
+                    painter.drawText(20,50*(k+1),QString::fromStdString(ss.str()));
+                    ss.str("");
+                }
+            }
+
+            painter.end();
+        }
+    }
+    else
+        QMessageBox::warning(this,"Error","No tiene ningun archivo abierto");
+
 }
