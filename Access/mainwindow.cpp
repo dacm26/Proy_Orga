@@ -178,6 +178,12 @@ void MainWindow::on_actionGuardar_triggered()
     if(!o_file->isOpen())
         QMessageBox::warning(this,"Error","No tiene un archivo abierto");
     else{
+        o_file->seekp(0,ios_base::end);
+        if(o_file->tellp()==1){
+            o_file->writeRecord(fh->toString().c_str(),0,0,fh->toString().size());
+            o_file->seekp(0,ios_base::end);
+            init=o_file->tellp();
+        }
         this->o_file->flush();
     }
 
@@ -330,8 +336,8 @@ void MainWindow::on_actionIntroducir_triggered()
                 init=o_file->tellp();
             }
                 //Recordar que en el AL se guarda el registro+1 ya que con 0 tira problemas
-                string record="0801199076110_______________________CLAUDIA_23F_987654.13";
-                o_file->writeRecord(record.c_str(),0,init,record.size());
+                string record="0801199298765_______________________CLAUDIO_23M_987654.13";
+                o_file->writeRecord(record.c_str(),1,init,record.size());
                 cout << "Insertar sin implementacion"<<endl;
                 ++n_rec;
 
