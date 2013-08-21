@@ -196,6 +196,9 @@ void MainWindow::on_actionCerrar_triggered()
         QMessageBox::warning(this,"Error","No tiene un archivo abierto");
     else{
         QStandardItemModel* model = new QStandardItemModel(1,1,this);//Se crea el modelo para la tabla
+        stringstream ss;
+        ss << fh->toString();
+        o_file->writeRecord(ss.str().c_str(),0,0,ss.str().size());
         ui->table->setModel(NULL);
         ui->actionCrear->setEnabled(true);
         ui->actionModificar->setEnabled(true);
@@ -554,6 +557,7 @@ void MainWindow::on_actionBorrar_triggered()
             do{
                 rec_bus=QInputDialog::getInt(this,"Eliminar Registros",qstr,0,1,n_rec,1,&ok);
             }while(!ok);
+            rec_bus;
             int z=0;
             int size_tot=n_rec+(int)fh->getAL().size();
             string y;
@@ -568,7 +572,7 @@ void MainWindow::on_actionBorrar_triggered()
                 }
             }
             o_file->deleteRecord(rec_bus,init,fh->getLength());
-            const int toS=rec_bus+1;
+            const int toS=rec_bus;
             fh->addIndex(toS);//Recordar que en el AL se guarda la pos +1;
             ss << toS;
             int digitos=ss.str().size()+1;
@@ -715,7 +719,7 @@ void MainWindow::on_actionImprimir_triggered()
                     }
 
                     delete[] writable;
-                    painter.drawText(20,50*(k+1),QString::fromStdString(ss.str()));
+                    painter.drawText(20,30*(k+1),QString::fromStdString(ss.str()));
                     ss.str("");
                 }
             }
