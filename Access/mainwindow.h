@@ -53,9 +53,9 @@ public:
     field_W *novo;
     FileHeader *fh;
     ADTRecordFile* o_file;
+    ADTRecordFile* temp;
     int init;
     int n_rec;
-    int init_avail;
 };
 
 #endif // MAINWINDOW_H

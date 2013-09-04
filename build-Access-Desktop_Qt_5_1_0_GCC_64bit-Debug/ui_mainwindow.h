@@ -44,6 +44,9 @@ public:
     QAction *actionExportar_XML;
     QAction *actionImportal_Json;
     QAction *actionExportar_Json;
+    QAction *actionCrear_Indices_Simples;
+    QAction *actionCrear_Indices_Arbol_B;
+    QAction *actionReindexar;
     QWidget *centralWidget;
     QTableView *table;
     QMenuBar *menuBar;
@@ -95,6 +98,12 @@ public:
         actionImportal_Json->setObjectName(QStringLiteral("actionImportal_Json"));
         actionExportar_Json = new QAction(MainWindow);
         actionExportar_Json->setObjectName(QStringLiteral("actionExportar_Json"));
+        actionCrear_Indices_Simples = new QAction(MainWindow);
+        actionCrear_Indices_Simples->setObjectName(QStringLiteral("actionCrear_Indices_Simples"));
+        actionCrear_Indices_Arbol_B = new QAction(MainWindow);
+        actionCrear_Indices_Arbol_B->setObjectName(QStringLiteral("actionCrear_Indices_Arbol_B"));
+        actionReindexar = new QAction(MainWindow);
+        actionReindexar->setObjectName(QStringLiteral("actionReindexar"));
         centralWidget = new QWidget(MainWindow);
         centralWidget->setObjectName(QStringLiteral("centralWidget"));
         table = new QTableView(centralWidget);
@@ -122,8 +131,8 @@ public:
         menuBar->addAction(menuArchivos->menuAction());
         menuBar->addAction(menuCampos->menuAction());
         menuBar->addAction(menuRegistros->menuAction());
-        menuBar->addAction(menuUtilidades->menuAction());
         menuBar->addAction(menuIndices->menuAction());
+        menuBar->addAction(menuUtilidades->menuAction());
         menuArchivos->addAction(actionNuevo);
         menuArchivos->addAction(actionAbrir);
         menuArchivos->addAction(actionGuardar);
@@ -139,6 +148,9 @@ public:
         menuRegistros->addAction(actionListar_2);
         menuRegistros->addSeparator();
         menuRegistros->addAction(actionCruzar);
+        menuIndices->addAction(actionCrear_Indices_Simples);
+        menuIndices->addAction(actionCrear_Indices_Arbol_B);
+        menuIndices->addAction(actionReindexar);
         menuUtilidades->addAction(actionImportar_XML);
         menuUtilidades->addAction(actionExportar_XML);
         menuUtilidades->addAction(actionImportal_Json);
@@ -170,6 +182,9 @@ public:
         actionExportar_XML->setText(QApplication::translate("MainWindow", "Exportar XML", 0));
         actionImportal_Json->setText(QApplication::translate("MainWindow", "Importar Json", 0));
         actionExportar_Json->setText(QApplication::translate("MainWindow", "Exportar Json", 0));
+        actionCrear_Indices_Simples->setText(QApplication::translate("MainWindow", "Crear Indices Simples", 0));
+        actionCrear_Indices_Arbol_B->setText(QApplication::translate("MainWindow", "Crear Indices Arbol B", 0));
+        actionReindexar->setText(QApplication::translate("MainWindow", "Reindexar", 0));
         menuArchivos->setTitle(QApplication::translate("MainWindow", "Archivos", 0));
         menuCampos->setTitle(QApplication::translate("MainWindow", "Campos", 0));
         menuRegistros->setTitle(QApplication::translate("MainWindow", "Registros", 0));

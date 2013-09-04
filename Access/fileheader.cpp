@@ -66,7 +66,7 @@ int FileHeader::getIndex() {//Devuelve un elemento del availlist
     return i;
 }
 
-string FileHeader::toString()const{
+string FileHeader::toString(){
     stringstream ss;
     for(int i = 0; i < this->fl_size();++i){
         ss << this->fieldlist.at(i).getName() << ',';
@@ -76,14 +76,6 @@ string FileHeader::toString()const{
         ss << this->fieldlist.at(i).getKey() << endl;
     }
     ss << '@';
-    if(!availList.empty())
-        do{
-            ss << availList.top() << ',';
-        }while(!this->availList.empty());
-    else{
-        for(int i=0;i<100;i++)
-            ss << " ";
-    }
     ss << endl;
     return ss.str();
 }

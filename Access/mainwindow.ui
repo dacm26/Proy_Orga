@@ -68,6 +68,9 @@
     <property name="title">
      <string>Indices</string>
     </property>
+    <addaction name="actionCrear_Indices_Simples"/>
+    <addaction name="actionCrear_Indices_Arbol_B"/>
+    <addaction name="actionReindexar"/>
    </widget>
    <widget class="QMenu" name="menuUtilidades">
     <property name="title">
@@ -81,8 +84,8 @@
    <addaction name="menuArchivos"/>
    <addaction name="menuCampos"/>
    <addaction name="menuRegistros"/>
-   <addaction name="menuUtilidades"/>
    <addaction name="menuIndices"/>
+   <addaction name="menuUtilidades"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
   <action name="actionNuevo">
@@ -173,6 +176,21 @@
   <action name="actionExportar_Json">
    <property name="text">
     <string>Exportar Json</string>
+   </property>
+  </action>
+  <action name="actionCrear_Indices_Simples">
+   <property name="text">
+    <string>Crear Indices Simples</string>
+   </property>
+  </action>
+  <action name="actionCrear_Indices_Arbol_B">
+   <property name="text">
+    <string>Crear Indices Arbol B</string>
+   </property>
+  </action>
+  <action name="actionReindexar">
+   <property name="text">
+    <string>Reindexar</string>
    </property>
   </action>
  </widget>

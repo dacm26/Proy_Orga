@@ -34,8 +34,9 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     init=0;
     n_rec=0;
-    init_avail=0;
     ui->setupUi(this);
+    this->temp=new ADTRecordFile();
+    temp->open("temp.txt");
     this->o_file=new ADTRecordFile();
     this->setFixedSize(1370,710);//Se le asigna el tamanio deseado a la ventana principal
     setCentralWidget(ui->table);//La tabla es asignada como la aplicacion central de la aplicacion
@@ -46,6 +47,12 @@ MainWindow::MainWindow(QWidget *parent) :
 
 MainWindow::~MainWindow()
 {
+    temp->close();
+    o_file->close();
+    delete novo;
+    delete fh;
+    delete temp;
+    delete o_file;
     delete ui;
 }
 
@@ -180,6 +187,7 @@ void MainWindow::on_actionGuardar_triggered()
     else{
         o_file->seekp(0,ios_base::end);
         if(o_file->tellp()==1){
+            cout << "Entro en guardar" << endl;
             o_file->writeRecord(fh->toString().c_str(),0,0,fh->toString().size());
             o_file->seekp(0,ios_base::end);
             init=o_file->tellp();
@@ -191,19 +199,70 @@ void MainWindow::on_actionGuardar_triggered()
 
 void MainWindow::on_actionCerrar_triggered()
 {
-    init=0;
     if(!o_file->isOpen())
         QMessageBox::warning(this,"Error","No tiene un archivo abierto");
     else{
-        QStandardItemModel* model = new QStandardItemModel(1,1,this);//Se crea el modelo para la tabla
+
+        this->o_file->seekp(0,ios_base::beg);
+        this->o_file->seekg(0,ios_base::beg);
+        this->temp->seekp(0,ios_base::end);
+        if(temp->tellp()==1){
+            cout << "Entro en el If del cerrar"<<endl;
+            this->temp->seekg(0,ios_base::beg);
+            this->temp->seekp(0,ios_base::beg);
+        }
+        else{
+            cout << "Entro en el else del cerrar"<<endl;
+            temp->close();
+            temp->file.open("temp.txt",ios_base::out|ios_base::trunc);
+            temp->close();
+            temp->file.open("temp.txt",fstream::out);
+            temp->file.flush();
+            temp->file.close();
+            temp->file.open("temp.txt", fstream::in | fstream::out);
+            this->temp->seekg(0,ios_base::beg);
+            this->temp->seekp(0,ios_base::beg);
+
+        }
+        temp->writeRecord(fh->toString().c_str(),0,0,fh->toString().size());
+        string x;
+        int lol=0;
+        for(int i=0;i<n_rec;++i){
+            x=this->o_file->readRecord(lol,init,fh->getLength());
+            if( (x.c_str())[0] == '*' ){
+                --i;
+            }
+            else{
+                if( !((x.c_str())[0]==' '))
+                    temp->writeRecord(x.c_str(),-1,init,fh->getLength());
+            }
+            ++lol;
+        }
+        temp->flush();
+        x=o_file->filename;
+        this->o_file->close();
+        this->o_file->file.open(x.c_str(),ios_base::out|ios_base::trunc);
+        this->o_file->file.close();
+        this->o_file->file.open(x.c_str(),fstream::out);
+        this->o_file->file.close();
+        this->o_file->file.open(x.c_str(), fstream::in | fstream::out);
+        this->o_file->seekg(0,ios_base::beg);
+        this->o_file->seekp(0,ios_base::beg);
         stringstream ss;
-        ss << fh->toString();
-        o_file->writeRecord(ss.str().c_str(),0,0,ss.str().size());
+        temp->seekp(0,ios_base::end);
+        int y=temp->tellp();
+        char buffer[y];
+        temp->seekg(0,ios_base::beg);
+        temp->file.read(buffer,y);
+        o_file->file.write(buffer,y);
+        o_file->seekg(0,ios_base::beg);
+        o_file->seekp(0,ios_base::beg);
         ui->table->setModel(NULL);
         ui->actionCrear->setEnabled(true);
         ui->actionModificar->setEnabled(true);
         this->o_file->flush();
         this->o_file->close();
+        init=0;
     }
 }
 
@@ -231,29 +290,6 @@ void MainWindow::on_actionAbrir_triggered()
             while(o_file->file.good()){
                 getline(o_file->file,line);
                 if((line.c_str())[0]=='@'){
-                    char* pch;
-                    char * writable = new char[line.size() + 1];
-                    copy(line.begin()+1, line.end(), writable);
-                    writable[line.size()] = '\0';
-                    pch= strtok (writable,",");
-                    while(pch != NULL){
-                        ss << pch;
-                        cout << ss.str() << endl;
-                        if((atoi(ss.str().c_str())>0) ){
-                            cout << "Hay papadas para el AL"<<endl;
-                            cout << ss.str() << endl;
-                            y=ss.str().size()+1;
-                            toM+=y;
-                            fh1->addIndex((atoi(ss.str().c_str())));
-                        }
-                        else{
-                            cout << "No hay nada para el AL"<<endl;
-                            break;
-                        }
-                        pch = strtok (NULL, ",");
-                        ss.str("");
-                    }
-                    cout<<"Tamanio AL: " << fh1->getAL().size() << endl;
                     init=o_file->tellg();
                     cout<< "Init: " << init << endl;
                     o_file->seekg(0,ios_base::end);
@@ -265,11 +301,6 @@ void MainWindow::on_actionAbrir_triggered()
                         ui->actionModificar->setEnabled(false);
                         this->n_rec=(o_file->tellg()-init)/fh->getLength();
                     }
-                    init_avail=init-101+toM;
-                    cout << "Numero de Records: " << n_rec << endl;
-                    o_file->seekp(init_avail,ios_base::beg);
-                    cout << "Donde comienza el Avail List: " << init_avail << endl;
-                    n_rec-=fh->getAL().size();
                     break;
                 }
                 else{
@@ -461,56 +492,58 @@ void MainWindow::on_actionBuscar_triggered()
         else{
             if(n_rec==0)
                 QMessageBox::warning(this,"Error","Necesita tener al menos un registro para poder buscar");
-            stringstream ss;
-            ss <<"Hay un total de " << n_rec << " registros. Ingrese el que quiere buscar";
-            QString qstr= QString::fromStdString(ss.str());
-            ss.str("");
-            bool ok=false;
-            int rec_bus;
-            do{
-                rec_bus=QInputDialog::getInt(this,"Buscar Registros",qstr,0,1,n_rec,1,&ok);
-            }while(!ok);
-            int z=0;
-            int size_tot=n_rec+(int)fh->getAL().size();
-            string y;
-            for(int i=0;i<size_tot;++i){
-                y=o_file->readRecord(i,init,fh->getLength());
-                cout << "i: " << i << endl;
-                if( !(y.at(0)=='*') ){
-                    ++z;
-
-                }
-                if ((z)==rec_bus){
-                    rec_bus=i;
-                    break;
-                }
-            }
-            string record=o_file->readRecord(rec_bus,init,fh->getLength());
-            QStandardItemModel* model = new QStandardItemModel(1,1,this);//Se crea el modelo para la tabla
-            //Se crean las columnas de la tabla
-            for(int i=0;i<fh->fl_size();++i){
-                model->setHorizontalHeaderItem(i,new QStandardItem(QString(QString::fromStdString(fh->getFL().at(i).getName()))));
-            }
-            qstr="";
-            ss.str("");
-            string str;
-            str=this->toRecord(record);
-            char* pch;
-            char * writable = new char[str.size() + 1];
-            copy(str.begin(), str.end(), writable);
-            writable[str.size()] = '\0';
-            pch= strtok (writable,",");
-            int j=0;
-            while(pch != NULL){
-                ss << pch;
-                qstr= QString::fromStdString(ss.str());
-                model->setItem(0,j,new QStandardItem(qstr));
-                pch = strtok (NULL, ",");
-                ++j;
+            else{
+                stringstream ss;
+                ss <<"Hay un total de " << n_rec << " registros. Ingrese el que quiere buscar";
+                QString qstr= QString::fromStdString(ss.str());
                 ss.str("");
+                bool ok=false;
+                int rec_bus;
+                do{
+                    rec_bus=QInputDialog::getInt(this,"Buscar Registros",qstr,0,1,n_rec,1,&ok);
+                }while(!ok);
+                int z=0;
+                int size_tot=n_rec+(int)fh->getAL().size();
+                string y;
+                for(int i=0;i<size_tot;++i){
+                    y=o_file->readRecord(i,init,fh->getLength());
+                    cout << "i: " << i << endl;
+                    if( !(y.at(0)=='*') ){
+                        ++z;
+
+                    }
+                    if ((z)==rec_bus){
+                        rec_bus=i;
+                        break;
+                    }
+                }
+                string record=o_file->readRecord(rec_bus,init,fh->getLength());
+                QStandardItemModel* model = new QStandardItemModel(1,1,this);//Se crea el modelo para la tabla
+                //Se crean las columnas de la tabla
+                for(int i=0;i<fh->fl_size();++i){
+                    model->setHorizontalHeaderItem(i,new QStandardItem(QString(QString::fromStdString(fh->getFL().at(i).getName()))));
+                }
+                qstr="";
+                ss.str("");
+                string str;
+                str=this->toRecord(record);
+                char* pch;
+                char * writable = new char[str.size() + 1];
+                copy(str.begin(), str.end(), writable);
+                writable[str.size()] = '\0';
+                pch= strtok (writable,",");
+                int j=0;
+                while(pch != NULL){
+                    ss << pch;
+                    qstr= QString::fromStdString(ss.str());
+                    model->setItem(0,j,new QStandardItem(qstr));
+                    pch = strtok (NULL, ",");
+                    ++j;
+                    ss.str("");
+                }
+                delete[] writable;
+                ui->table->setModel(model);//Asigna el Modelo a la tabla
             }
-            delete[] writable;
-            ui->table->setModel(model);//Asigna el Modelo a la tabla
         }
     }
     else
@@ -548,39 +581,39 @@ void MainWindow::on_actionBorrar_triggered()
         else{
             if(n_rec==0)
                 QMessageBox::warning(this,"Error","Necesita tener al menos un registro para poder borrar");
-            stringstream ss;
-            ss <<"Hay un total de " << n_rec << " registros. Ingrese el que quiere eliminar";
-            QString qstr= QString::fromStdString(ss.str());
-            ss.str("");
-            bool ok=false;
-            int rec_bus;
-            do{
-                rec_bus=QInputDialog::getInt(this,"Eliminar Registros",qstr,0,1,n_rec,1,&ok);
-            }while(!ok);
-            rec_bus;
-            int z=0;
-            int size_tot=n_rec+(int)fh->getAL().size();
-            string y;
-            for(int i=0;i<size_tot;++i){
-                y=o_file->readRecord(i,init,fh->getLength());
-                if( !(y.at(0)=='*') ){
-                    ++z;
+            else{
+                stringstream ss;
+                ss <<"Hay un total de " << n_rec << " registros. Ingrese el que quiere eliminar";
+                QString qstr= QString::fromStdString(ss.str());
+                ss.str("");
+                bool ok=false;
+                int rec_bus;
+                do{
+                    rec_bus=QInputDialog::getInt(this,"Eliminar Registros",qstr,0,1,n_rec,1,&ok);
+                }while(!ok);
+                rec_bus;
+                int z=0;
+                int size_tot=n_rec+(int)fh->getAL().size();
+                string y;
+                for(int i=0;i<size_tot;++i){
+                    y=o_file->readRecord(i,init,fh->getLength());
+                    if( !(y.at(0)=='*') ){
+                        ++z;
+                    }
+                    if ((z)==rec_bus){
+                        rec_bus=i;
+                        break;
+                    }
                 }
-                if ((z)==rec_bus){
-                    rec_bus=i;
-                    break;
-                }
+                o_file->deleteRecord(rec_bus,init,fh->getLength());
+                const int toS=rec_bus;
+                fh->addIndex(toS);//Recordar que en el AL se guarda la pos +1;
+                ss << toS;
+                int digitos=ss.str().size()+1;
+                ss << ',';
+                --n_rec;
+                QMessageBox::information(this,"Info.","Eliminacion con exito");
             }
-            o_file->deleteRecord(rec_bus,init,fh->getLength());
-            const int toS=rec_bus;
-            fh->addIndex(toS);//Recordar que en el AL se guarda la pos +1;
-            ss << toS;
-            int digitos=ss.str().size()+1;
-            ss << ',';
-            o_file->writeRecord(ss.str().c_str(),0,init_avail,digitos);
-            init_avail+=digitos;
-            --n_rec;
-            QMessageBox::information(this,"Info.","Eliminacion con exito");
         }
     }
     else
