@@ -24,7 +24,7 @@ using namespace std;
 
 /*
  Pendiente:
- **Registros --- A falta de Imprimir en PDF y la ventana dinamica ---
+ **Trabajar Registros con indices
  **Utilidades
  **Indices
 */
@@ -248,7 +248,6 @@ void MainWindow::on_actionCerrar_triggered()
         this->o_file->file.open(x.c_str(), fstream::in | fstream::out);
         this->o_file->seekg(0,ios_base::beg);
         this->o_file->seekp(0,ios_base::beg);
-        stringstream ss;
         temp->seekp(0,ios_base::end);
         int y=temp->tellp();
         char buffer[y];
@@ -285,8 +284,6 @@ void MainWindow::on_actionAbrir_triggered()
             stringstream ss;
             int j=0;
             field f;
-            int toM=0;
-            int y=0;
             while(o_file->file.good()){
                 getline(o_file->file,line);
                 if((line.c_str())[0]=='@'){
@@ -609,7 +606,6 @@ void MainWindow::on_actionBorrar_triggered()
                 const int toS=rec_bus;
                 fh->addIndex(toS);//Recordar que en el AL se guarda la pos +1;
                 ss << toS;
-                int digitos=ss.str().size()+1;
                 ss << ',';
                 --n_rec;
                 QMessageBox::information(this,"Info.","Eliminacion con exito");
