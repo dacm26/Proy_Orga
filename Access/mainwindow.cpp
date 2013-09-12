@@ -541,20 +541,40 @@ void MainWindow::on_actionIntroducir_triggered()
                 }
             }
             cout << ss.str() << endl;
-            cout << z1 << endl;
+            //cout  << "La key es: "<< z1 << endl;
             if(where==-2){
                 o_file->writeRecord(ss.str().c_str(),where,init,fh->getLength());
+                //cout  << "VALUE: " << n_rec << endl;
                 //indices.insert(z1,n_rec);
             }
             else{
                 int pos1=fh->getIndex();
                 o_file->writeRecord(ss.str().c_str(),pos1,init,fh->getLength());
-                //indices.insert(z1,pos1);
+                /*if(pos1 == -1){
+                    cout << "El if: "<<endl;
+                    cout  << "VALUE: " << n_rec << endl;
+                    cout << "Tamanio 1: " << indices.values().size() << endl;
+                    indices.insert(z1,n_rec);
+                    cout << "Tamanio 2: " << indices.values().size() << endl;
+                }
+                else{
+                    cout << "El else: "<<endl;
+                    cout  << "VALUE: " << pos1 << endl;
+                    cout << "Tamanio 1: " << indices.values().size() << endl;
+                    indices.insert(z1,pos1);
+                    cout << "Tamanio 2: " << indices.values().size() << endl;
+                }
+                */
 
            }
             ++n_rec;
             indices.clear();
             makeSimpleIndex();
+            /*QList<int> asd=indices.values();
+            QList <string> asd1=indices.keys();
+            cout<< "Tamanio: " << asd.size() << endl;
+            for(int i=0; i < asd.size() ; ++i)
+                cout << asd1.at(i) << '\t' << asd.at(i) << endl;*/
         }
     }else
         QMessageBox::warning(this,"Error","No tiene ningun archivo abierto");
@@ -669,6 +689,11 @@ void MainWindow::on_actionBorrar_triggered()
                     fh->addIndex(indices.value(z1));//Recordar que en el AL se guarda la pos +1;
                     indices.remove(z1);
                     --n_rec;
+                    QList<int> asd=indices.values();
+                    QList <string> asd1=indices.keys();
+                    cout<< "Tamanio: " << asd.size() << endl;
+                    for(int i=0; i < asd.size() ; ++i)
+                        cout << asd1.at(i) << '\t' << asd.at(i) << endl;
                     QMessageBox::information(this,"Info.","Eliminacion con exito");
                 }
                 else{
