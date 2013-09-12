@@ -38,6 +38,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
     this->temp=new ADTRecordFile();
     temp->open("temp.txt");
+    fh=new FileHeader();
     this->o_file=new ADTRecordFile();
     this->setFixedSize(1370,710);//Se le asigna el tamanio deseado a la ventana principal
     setCentralWidget(ui->table);//La tabla es asignada como la aplicacion central de la aplicacion
@@ -70,13 +71,21 @@ void MainWindow::on_actionNuevo_triggered()
 
 void MainWindow::on_actionCrear_triggered()
 {
+    cout << "Entro a Crear" << endl;
     if(o_file->isOpen()){
-    novo= new field_W();//Se crea la ventana para crear campos
-    if( !(fh->fl_size()<=0 || fh->fl_size()>1000) )
-        novo->copy_fh(fh);
-    novo->exec();//se ejecuta la ventana
-    fh=novo->getFields();//Obtiene el FieldList y AvailList
-    delete novo;//se libera la memoria
+        cout << "Entro 1" << endl;
+        novo= new field_W();//Se crea la ventana para crear campos
+        cout << "Entro 2" << endl;
+        cout << "Tamanio del FL: " << fh->fl_size() << endl;
+        if( !(fh->fl_size()<=0 || fh->fl_size()>1000) )
+            novo->copy_fh(fh);
+        cout << "Entro 3" << endl;
+        novo->exec();//se ejecuta la ventana
+        cout << "Entro 4" << endl;
+        fh=novo->getFields();//Obtiene el FieldList y AvailList
+        cout << "Entro 5" << endl;
+        delete novo;//se libera la memoria
+        cout << "Entro 6" << endl;
     }else{
         QMessageBox::warning(this,"Error","No tiene un archivo abierto");
     }
@@ -264,6 +273,8 @@ void MainWindow::on_actionCerrar_triggered()
         this->o_file->close();
         init=0;
         indices.clear();
+        delete fh;
+        fh= new FileHeader();
     }
 }
 
@@ -276,8 +287,9 @@ void MainWindow::on_actionAbrir_triggered()
     else{
         QString filename= QFileDialog::getOpenFileName(this,"Open File","/home","*.txt");
         o_file->open(filename.toStdString());
-        if(!o_file->isOpen())
+        if(!o_file->isOpen()){
             QMessageBox::warning(this,"Error","No se pudo abrir el archivo");
+        }
     }
     o_file->seekp(0,ios_base::end);
     if(o_file->tellp()!=1){
@@ -351,6 +363,7 @@ void MainWindow::on_actionIntroducir_triggered()
         if((fh->fl_size()<=0 || fh->fl_size()>1000))
             QMessageBox::warning(this,"Error","Necesita tener al menos un campo para poder crear un registro");
         else{
+            string z1;
             bool key_pass=false;
             ui->actionCrear->setEnabled(false);
             ui->actionModificar->setEnabled(false);
@@ -385,12 +398,14 @@ void MainWindow::on_actionIntroducir_triggered()
             for(int i=0; i<fh->fl_size();++i){
                 if( (fh->getFL().at(i)).getKey() == 1){
                     pos1=i;
+                    cout << "En la Posicion " << i << "Esta la Llave" << endl;
                     break;
                 }
             }
              stringstream ss2;
             for(int i=0;i<fh->fl_size();++i){
                 ok=false;
+                cout << "Esta en la " << i << " del FL " << endl;
                 ss2.str("");
                 if(fh->getFL().at(i).getType()=='0'){
                     ss1<< "Ingrese "<< fh->getFL().at(i).getName();
@@ -403,6 +418,7 @@ void MainWindow::on_actionIntroducir_triggered()
                         ss2 << x;
                         if(i==pos1 && indices.contains(ss2.str())){
                             ok=false;
+                            cout << "Ya existe" << endl;
                         }
                         if(ok){
                             ss1 << x;
@@ -417,10 +433,16 @@ void MainWindow::on_actionIntroducir_triggered()
                                     ss << '_';
                                 //ss << setfill('_')<<setw(toFill);
                                 ss << other;
+                                stringstream ss3;
+                                ss3 << x;
+                                z1=ss3.str();
                             }
                             else{
                                 cout << "Entro 3"<<endl;
                                 ss << x;
+                                stringstream ss3;
+                                ss3 << x;
+                                z1=ss3.str();
                             }
                             ss1.str("");
                         }
@@ -438,6 +460,7 @@ void MainWindow::on_actionIntroducir_triggered()
                         ss2 << y;
                         if(i==pos1 && indices.contains(ss2.str())){
                             ok=false;
+                            cout << "Ya existe" << endl;
                         }
                         if(ok){
                             ss1.str("");
@@ -452,10 +475,16 @@ void MainWindow::on_actionIntroducir_triggered()
                                     ss << '_';
                                 //ss << setfill('_')<<setw(toFill);
                                 ss << other;
+                                stringstream ss3;
+                                ss3 << y;
+                                z1=ss3.str();
                             }
                             else{
                                 cout << "Entro 3"<<endl;
                                 ss << y;
+                                stringstream ss3;
+                                ss3 << y;
+                                z1=ss3.str();
                             }
                             ss1.str("");
                         }
@@ -479,6 +508,7 @@ void MainWindow::on_actionIntroducir_triggered()
                         ss2 << z;
                         if(i==pos1 && indices.contains(ss2.str())){
                             ok=false;
+                            cout << "Ya existe" << endl;
                         }
                         if(ok){
                             ss1 << z;
@@ -494,10 +524,12 @@ void MainWindow::on_actionIntroducir_triggered()
                                     ss << '_';
                                 //ss << setfill('_')<<setw(toFill);
                                 ss << other;
+                                z1=z;
                             }
                             else{
                                 cout << "Entro 3"<<endl;
                                 ss << z;
+                                z1=z;
                             }
                             ss1.str("");
                         }
@@ -509,12 +541,15 @@ void MainWindow::on_actionIntroducir_triggered()
                 }
             }
             cout << ss.str() << endl;
+            cout << z1 << endl;
             if(where==-2){
                 o_file->writeRecord(ss.str().c_str(),where,init,fh->getLength());
-
+                //indices.insert(z1,n_rec);
             }
             else{
-                o_file->writeRecord(ss.str().c_str(),fh->getIndex(),init,fh->getLength());
+                int pos1=fh->getIndex();
+                o_file->writeRecord(ss.str().c_str(),pos1,init,fh->getLength());
+                //indices.insert(z1,pos1);
 
            }
             ++n_rec;
