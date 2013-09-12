@@ -12,6 +12,7 @@
 #include <QtPrintSupport/QPrintDialog>
 #include <QPainter>
 #include <QFileDialog>
+#include <QList>
 #include <QStandardItemModel>
 #include <QStandardItem>
 #include <QInputDialog>
@@ -26,7 +27,7 @@ using namespace std;
  Pendiente:
  **Trabajar Registros con indices
  **Utilidades
- **Indices
+ **Arbol B
 */
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -262,6 +263,7 @@ void MainWindow::on_actionCerrar_triggered()
         this->o_file->flush();
         this->o_file->close();
         init=0;
+        indices.clear();
     }
 }
 
@@ -339,6 +341,7 @@ void MainWindow::on_actionAbrir_triggered()
                     //cout << "aqui 3"<<endl;
                 }
             }
+            makeSimpleIndex();
         }
     }
 
@@ -378,8 +381,17 @@ void MainWindow::on_actionIntroducir_triggered()
             string z;
             bool ok;
             int toFill=0;
+            int pos1=0;
+            for(int i=0; i<fh->fl_size();++i){
+                if( (fh->getFL().at(i)).getKey() == 1){
+                    pos1=i;
+                    break;
+                }
+            }
+             stringstream ss2;
             for(int i=0;i<fh->fl_size();++i){
                 ok=false;
+                ss2.str("");
                 if(fh->getFL().at(i).getType()=='0'){
                     ss1<< "Ingrese "<< fh->getFL().at(i).getName();
                     string asd=ss1.str();
@@ -387,50 +399,69 @@ void MainWindow::on_actionIntroducir_triggered()
                     ss1.str("");
                     do{
                         x=QInputDialog::getInt(this,"Add Record",(QString::fromStdString(asd)),0,0,99999999999999999999,1,&ok);
-                        ss1 << x;
-                        if(ss1.str().size()>fh->getFL().at(i).getLength())
+                        ss2.str("");
+                        ss2 << x;
+                        if(i==pos1 && indices.contains(ss2.str())){
                             ok=false;
-                        else if(ss1.str().size()<fh->getFL().at(i).getLength()){
-                            cout << "Entro 2"<<endl;
-                            other=ss1.str();
+                        }
+                        if(ok){
+                            ss1 << x;
+                            if(ss1.str().size()>fh->getFL().at(i).getLength())
+                                ok=false;
+                            else if(ss1.str().size()<fh->getFL().at(i).getLength()){
+                                cout << "Entro 2"<<endl;
+                                other=ss1.str();
+                                ss1.str("");
+                                toFill=fh->getFL().at(i).getLength()-other.size();
+                                for(int i=0;i<toFill;++i)
+                                    ss << '_';
+                                //ss << setfill('_')<<setw(toFill);
+                                ss << other;
+                            }
+                            else{
+                                cout << "Entro 3"<<endl;
+                                ss << x;
+                            }
                             ss1.str("");
-                            toFill=fh->getFL().at(i).getLength()-other.size();
-                            for(int i=0;i<toFill;++i)
-                                ss << '_';
-                            //ss << setfill('_')<<setw(toFill);
-                            ss << other;
                         }
                         else{
-                            cout << "Entro 3"<<endl;
-                            ss << x;
+                            QMessageBox::warning(this,"Error","Ya tiene un registro con ese atributo");
                         }
-                        ss1.str("");
                     }while(!ok);
                 }
                 else if(fh->getFL().at(i).getType()=='1'){
                     ss1<< "Ingrese "<< fh->getFL().at(i).getName();
-                    string asd=ss1.str();
                     string other="";
                     do{
                         y=QInputDialog::getDouble(this,"Add Record",(QString::fromStdString(ss1.str())),0,0,99999999999999999999.99,fh->getFL().at(i).getDecimal(),&ok);
-                        ss1.str("");
-                        ss1 << y;
-                        if(ss1.str().size()>fh->getFL().at(i).getLength())
+                        ss2.str("");
+                        ss2 << y;
+                        if(i==pos1 && indices.contains(ss2.str())){
                             ok=false;
-                        else if(ss1.str().size()<fh->getFL().at(i).getLength()){
-                            other=ss1.str();
-                            cout << "Entro 2"<<endl;
-                            toFill=fh->getFL().at(i).getLength()-other.size();
-                            for(int i=0;i<toFill;++i)
-                                ss << '_';
-                            //ss << setfill('_')<<setw(toFill);
-                            ss << other;
+                        }
+                        if(ok){
+                            ss1.str("");
+                            ss1 << y;
+                            if(ss1.str().size()>fh->getFL().at(i).getLength())
+                                ok=false;
+                            else if(ss1.str().size()<fh->getFL().at(i).getLength()){
+                                other=ss1.str();
+                                cout << "Entro 2"<<endl;
+                                toFill=fh->getFL().at(i).getLength()-other.size();
+                                for(int i=0;i<toFill;++i)
+                                    ss << '_';
+                                //ss << setfill('_')<<setw(toFill);
+                                ss << other;
+                            }
+                            else{
+                                cout << "Entro 3"<<endl;
+                                ss << y;
+                            }
+                            ss1.str("");
                         }
                         else{
-                            cout << "Entro 3"<<endl;
-                            ss << y;
+                            QMessageBox::warning(this,"Error","Ya tiene un registro con ese atributo");
                         }
-                        ss1.str("");
                     }while(!ok);
                     ss1.str("");
                 }
@@ -444,24 +475,35 @@ void MainWindow::on_actionIntroducir_triggered()
                                                              (QString::fromStdString(asd)), QLineEdit::Normal,
                                                              QDir::home().dirName(), &ok);
                         z=text.toStdString();
-                        ss1 << z;
-                        if(ss1.str().size()>fh->getFL().at(i).getLength())
+                        ss2.str("");
+                        ss2 << z;
+                        if(i==pos1 && indices.contains(ss2.str())){
                             ok=false;
-                        else if(ss1.str().size()<fh->getFL().at(i).getLength()){
-                            other=ss1.str();
-                            cout << "Entro 2"<<endl;
+                        }
+                        if(ok){
+                            ss1 << z;
+
+                            if(ss1.str().size()>fh->getFL().at(i).getLength())
+                                ok=false;
+                            else if(ss1.str().size()<fh->getFL().at(i).getLength()){
+                                other=ss1.str();
+                                cout << "Entro 2"<<endl;
+                                ss1.str("");
+                                toFill=fh->getFL().at(i).getLength()-other.size();
+                                for(int i=0;i<toFill;++i)
+                                    ss << '_';
+                                //ss << setfill('_')<<setw(toFill);
+                                ss << other;
+                            }
+                            else{
+                                cout << "Entro 3"<<endl;
+                                ss << z;
+                            }
                             ss1.str("");
-                            toFill=fh->getFL().at(i).getLength()-other.size();
-                            for(int i=0;i<toFill;++i)
-                                ss << '_';
-                            //ss << setfill('_')<<setw(toFill);
-                            ss << other;
                         }
                         else{
-                            cout << "Entro 3"<<endl;
-                            ss << z;
+                            QMessageBox::warning(this,"Error","Ya tiene un registro con ese atributo");
                         }
-                        ss1.str("");
                     }while(!ok);
                     ss1.str("");
                 }
@@ -476,6 +518,8 @@ void MainWindow::on_actionIntroducir_triggered()
 
            }
             ++n_rec;
+            indices.clear();
+            makeSimpleIndex();
         }
     }else
         QMessageBox::warning(this,"Error","No tiene ningun archivo abierto");
@@ -491,55 +535,49 @@ void MainWindow::on_actionBuscar_triggered()
                 QMessageBox::warning(this,"Error","Necesita tener al menos un registro para poder buscar");
             else{
                 stringstream ss;
-                ss <<"Hay un total de " << n_rec << " registros. Ingrese el que quiere buscar";
+                ss <<"Ingrese el registro que desea buscar";
                 QString qstr= QString::fromStdString(ss.str());
+                string asd=ss.str();
                 ss.str("");
                 bool ok=false;
-                int rec_bus;
+                string z1;
                 do{
-                    rec_bus=QInputDialog::getInt(this,"Buscar Registros",qstr,0,1,n_rec,1,&ok);
+                    QString text = QInputDialog::getText(this, ("Find Record"),
+                                                         (QString::fromStdString(asd)), QLineEdit::Normal,
+                                                         QDir::home().dirName(), &ok);
+                    z1=text.toStdString();
                 }while(!ok);
-                int z=0;
-                int size_tot=n_rec+(int)fh->getAL().size();
-                string y;
-                for(int i=0;i<size_tot;++i){
-                    y=o_file->readRecord(i,init,fh->getLength());
-                    cout << "i: " << i << endl;
-                    if( !(y.at(0)=='*') ){
-                        ++z;
-
+                if(indices.contains(z1)){
+                    string record=o_file->readRecord(indices.value(z1),init,fh->getLength());
+                    QStandardItemModel* model = new QStandardItemModel(1,1,this);//Se crea el modelo para la tabla
+                    //Se crean las columnas de la tabla
+                    for(int i=0;i<fh->fl_size();++i){
+                        model->setHorizontalHeaderItem(i,new QStandardItem(QString(QString::fromStdString(fh->getFL().at(i).getName()))));
                     }
-                    if ((z)==rec_bus){
-                        rec_bus=i;
-                        break;
-                    }
-                }
-                string record=o_file->readRecord(rec_bus,init,fh->getLength());
-                QStandardItemModel* model = new QStandardItemModel(1,1,this);//Se crea el modelo para la tabla
-                //Se crean las columnas de la tabla
-                for(int i=0;i<fh->fl_size();++i){
-                    model->setHorizontalHeaderItem(i,new QStandardItem(QString(QString::fromStdString(fh->getFL().at(i).getName()))));
-                }
-                qstr="";
-                ss.str("");
-                string str;
-                str=this->toRecord(record);
-                char* pch;
-                char * writable = new char[str.size() + 1];
-                copy(str.begin(), str.end(), writable);
-                writable[str.size()] = '\0';
-                pch= strtok (writable,",");
-                int j=0;
-                while(pch != NULL){
-                    ss << pch;
-                    qstr= QString::fromStdString(ss.str());
-                    model->setItem(0,j,new QStandardItem(qstr));
-                    pch = strtok (NULL, ",");
-                    ++j;
+                    qstr="";
                     ss.str("");
+                    string str;
+                    str=this->toRecord(record);
+                    char* pch;
+                    char * writable = new char[str.size() + 1];
+                    copy(str.begin(), str.end(), writable);
+                    writable[str.size()] = '\0';
+                    pch= strtok (writable,",");
+                    int j=0;
+                    while(pch != NULL){
+                        ss << pch;
+                        qstr= QString::fromStdString(ss.str());
+                        model->setItem(0,j,new QStandardItem(qstr));
+                        pch = strtok (NULL, ",");
+                        ++j;
+                        ss.str("");
+                    }
+                    delete[] writable;
+                    ui->table->setModel(model);//Asigna el Modelo a la tabla
                 }
-                delete[] writable;
-                ui->table->setModel(model);//Asigna el Modelo a la tabla
+                else{
+                    QMessageBox::warning(this,"Error","No tiene ningun registro con ese atributo");
+                }
             }
         }
     }
@@ -580,35 +618,27 @@ void MainWindow::on_actionBorrar_triggered()
                 QMessageBox::warning(this,"Error","Necesita tener al menos un registro para poder borrar");
             else{
                 stringstream ss;
-                ss <<"Hay un total de " << n_rec << " registros. Ingrese el que quiere eliminar";
-                QString qstr= QString::fromStdString(ss.str());
+                ss <<"Ingrese el registro que desea Eliminar";
+                string asd=ss.str();
                 ss.str("");
                 bool ok=false;
-                int rec_bus;
+                string z1;
                 do{
-                    rec_bus=QInputDialog::getInt(this,"Eliminar Registros",qstr,0,1,n_rec,1,&ok);
+                    QString text = QInputDialog::getText(this, ("Delete Record"),
+                                                         (QString::fromStdString(asd)), QLineEdit::Normal,
+                                                         QDir::home().dirName(), &ok);
+                    z1=text.toStdString();
                 }while(!ok);
-                rec_bus;
-                int z=0;
-                int size_tot=n_rec+(int)fh->getAL().size();
-                string y;
-                for(int i=0;i<size_tot;++i){
-                    y=o_file->readRecord(i,init,fh->getLength());
-                    if( !(y.at(0)=='*') ){
-                        ++z;
-                    }
-                    if ((z)==rec_bus){
-                        rec_bus=i;
-                        break;
-                    }
+                if(indices.contains(z1)){
+                    o_file->deleteRecord(indices.value(z1),init,fh->getLength());
+                    fh->addIndex(indices.value(z1));//Recordar que en el AL se guarda la pos +1;
+                    indices.remove(z1);
+                    --n_rec;
+                    QMessageBox::information(this,"Info.","Eliminacion con exito");
                 }
-                o_file->deleteRecord(rec_bus,init,fh->getLength());
-                const int toS=rec_bus;
-                fh->addIndex(toS);//Recordar que en el AL se guarda la pos +1;
-                ss << toS;
-                ss << ',';
-                --n_rec;
-                QMessageBox::information(this,"Info.","Eliminacion con exito");
+                else{
+                    QMessageBox::warning(this,"Error","No tiene ningun registro con ese atributo");
+                }
             }
         }
     }
@@ -759,4 +789,56 @@ void MainWindow::on_actionImprimir_triggered()
     else
         QMessageBox::warning(this,"Error","No tiene ningun archivo abierto");
 
+}
+
+void MainWindow::makeSimpleIndex(){
+    int pos1=0;
+    for(int i=0; i<fh->fl_size();++i){
+        if( (fh->getFL().at(i)).getKey() == 1){
+            pos1=i;
+            break;
+        }
+    }
+    QString qstr;
+    stringstream ss;
+    for(int k=0;k<n_rec;++k){
+        string record=o_file->readRecord(k,init,fh->getLength());
+        if(!(record.at(0)=='*')){
+            qstr="";
+            ss.str("");
+            string str;
+            str=this->toRecord(record);
+            char* pch;
+            char * writable = new char[str.size() + 1];
+            copy(str.begin(), str.end(), writable);
+            writable[str.size()] = '\0';
+            pch= strtok (writable,",");
+            int j=0;
+            while(pch != NULL){
+                if(pos1==j){
+                    ss << pch;
+                    break;
+                }
+                pch = strtok (NULL, ",");
+                ++j;
+            }
+            delete[] writable;
+            indices.insert(ss.str(),k);
+        }
+    }
+    QList<int> asd=indices.values();
+    QList <string> asd1=indices.keys();
+    cout<< "Tamanio: " << asd.size() << endl;
+    for(int i=0; i < asd.size() ; ++i)
+        cout << asd1.at(i) << '\t' << asd.at(i) << endl;
+}
+
+void MainWindow::on_actionCrear_Indices_Simples_triggered()
+{
+    makeSimpleIndex();
+}
+
+void MainWindow::on_actionReindexar_triggered()
+{
+    makeSimpleIndex();
 }
