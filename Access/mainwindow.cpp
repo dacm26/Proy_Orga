@@ -717,17 +717,15 @@ void MainWindow::on_actionListar_2_triggered()
             stringstream ss;
             QString qstr;
             ss.str("");
-            int rec_bus;
             QStandardItemModel* model = new QStandardItemModel(1,1,this);//Se crea el modelo para la tabla
             //Se crean las columnas de la tabla
             for(int i=0;i<fh->fl_size();++i){
                 model->setHorizontalHeaderItem(i,new QStandardItem(QString(QString::fromStdString(fh->getFL().at(i).getName()))));
             }
             int pos=0;
-            for(int k=0;k<n_rec+fh->getAL().size();++k){
-                rec_bus=k;
-                string record=o_file->readRecord(rec_bus,init,fh->getLength());
-                if(!(record.at(0)=='*')){
+            QList<string> asd=indices.keys();
+            for(int k=0;k<asd.size();++k){
+                string record=o_file->readRecord(indices.value(asd.at(k)),init,fh->getLength());
                     qstr="";
                     ss.str("");
                     string str;
@@ -748,7 +746,7 @@ void MainWindow::on_actionListar_2_triggered()
                     }
                     delete[] writable;
                     ++pos;
-                }
+
             }
             ui->table->setModel(model);//Asigna el Modelo a la tabla
         }
@@ -779,17 +777,47 @@ void MainWindow::on_actionImprimir_triggered()
             QMessageBox::warning(this,"Error","Necesita tener al menos un campo para poder imprimir");
         else{
             QString fileName = QFileDialog::getSaveFileName(this, tr("Save File"),"untitled",tr("PDF Document (*.pdf)"));
-            QPrinter printer;
-            printer.setOutputFormat(QPrinter::PdfFormat);
-            printer.setOutputFileName(fileName);
-            QPainter painter;
-            if (! painter.begin(&printer)) { // failed to open file
-                qWarning("failed to open file, is it writable?");
-                return ;
-            }
-
-            painter.drawText(10, 10, "Campos");
+            QString field_Table = "";
             stringstream ss;
+            field_Table += "<table border=\"2\">";
+            field_Table += "<tr>";
+            for(int i=0; i < fh->fl_size(); ++i){
+                field_Table += QString::fromStdString(string("<th>")) + QString::fromStdString(fh->getFL().at(i).getName()) + QString::fromStdString(string("</th>"));
+            }
+            QList<string> asd=indices.keys();
+            for(int i=0; i < asd.size();++i){
+                field_Table += "<tr>";
+                string record=o_file->readRecord(indices.value(asd.at(i)),init,fh->getLength());
+                ss.str("");
+                string str;
+                str=this->toRecord(record);
+                char* pch;
+                char * writable = new char[str.size() + 1];
+                copy(str.begin(), str.end(), writable);
+                writable[str.size()] = '\0';
+                pch= strtok (writable,",");
+                while(pch != NULL){
+                    ss << pch;
+                    field_Table += QString::fromStdString(string("<td>")) + QString::fromStdString(ss.str()) + QString::fromStdString(string("</td>"));
+                    pch = strtok (NULL, ",");
+                    ss.str("");
+                }
+
+                delete[] writable;
+                ss.str("");
+
+                field_Table += "</tr>";
+            }
+            field_Table += "</table>";
+            QTextDocument doc;
+            doc.setHtml(field_Table);
+            QPrinter printer;
+            printer.setOutputFileName(fileName);
+            printer.setOutputFormat(QPrinter::PdfFormat);
+            doc.print(&printer);
+            printer.newPage();
+
+            /*stringstream ss;
             ss << "Nombre" << "\t\t"<<"Tipo"<<"\t\t"<<"Longitud"<<"\t\t"<<"Decimal"<<"\t\t"<<"Llave";
             painter.drawText(20,100,QString::fromStdString(ss.str()));
             ss.str("");
@@ -843,7 +871,7 @@ void MainWindow::on_actionImprimir_triggered()
                 }
             }
 
-            painter.end();
+            painter.end();*/
         }
     }
     else
