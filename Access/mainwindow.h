@@ -54,6 +54,10 @@ private slots:
 
     void on_actionReindexar_triggered();
 
+    void on_actionExportar_XML_triggered();
+
+    void on_actionExportar_Json_triggered();
+
 public:
     Ui::MainWindow *ui;
     field_W *novo;

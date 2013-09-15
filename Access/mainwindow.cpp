@@ -16,6 +16,8 @@
 #include <QStandardItemModel>
 #include <QStandardItem>
 #include <QInputDialog>
+#include <QtXml>
+#include <QJsonDocument>
 
 #include <iostream>
 #include <sstream>
@@ -816,62 +818,6 @@ void MainWindow::on_actionImprimir_triggered()
             printer.setOutputFormat(QPrinter::PdfFormat);
             doc.print(&printer);
             printer.newPage();
-
-            /*stringstream ss;
-            ss << "Nombre" << "\t\t"<<"Tipo"<<"\t\t"<<"Longitud"<<"\t\t"<<"Decimal"<<"\t\t"<<"Llave";
-            painter.drawText(20,100,QString::fromStdString(ss.str()));
-            ss.str("");
-            string x;
-            string y;
-            for(int i=0;i<fh->fl_size();++i){
-                if(fh->getFL().at(i).getType()=='0')
-                    x="Entero";
-                if(fh->getFL().at(i).getType()=='1')
-                    x="Real";
-                if(fh->getFL().at(i).getType()=='2')
-                    x="Cadena";
-                if(fh->getFL().at(i).getKey()==0)
-                    y="No es Llave";
-                if(fh->getFL().at(i).getKey()==1)
-                    y="Es Llave";
-                ss << fh->getFL().at(i).getName() << "\t\t"<<x<<"\t\t"<<fh->getFL().at(i).getLength()<<"\t\t"<<fh->getFL().at(i).getDecimal()<<"\t\t"<<y;
-                painter.drawText(20,50*(i+3),QString::fromStdString(ss.str()));
-                ss.str("");
-            }
-            if (! printer.newPage()) {
-                qWarning("failed in flushing page to disk, disk full?");
-                return ;
-            }
-            painter.drawText(10, 10, "Registros");
-            ss.str("");
-
-            int rec_bus;
-            for(int k=0;k<n_rec+fh->getAL().size();++k){
-                rec_bus=k;
-                string record=o_file->readRecord(rec_bus,init,fh->getLength());
-                if(!(record.at(0)=='*')){
-                    ss.str("");
-                    string str;
-                    str=this->toRecord(record);
-                    char* pch;
-                    char * writable = new char[str.size() + 1];
-                    copy(str.begin(), str.end(), writable);
-                    writable[str.size()] = '\0';
-                    pch= strtok (writable,",");
-                    int j=0;
-                    while(pch != NULL){
-                        ss << pch << "\t";
-                        pch = strtok (NULL, ",");
-                        ++j;
-                    }
-
-                    delete[] writable;
-                    painter.drawText(20,30*(k+1),QString::fromStdString(ss.str()));
-                    ss.str("");
-                }
-            }
-
-            painter.end();*/
         }
     }
     else
@@ -929,4 +875,82 @@ void MainWindow::on_actionCrear_Indices_Simples_triggered()
 void MainWindow::on_actionReindexar_triggered()
 {
     makeSimpleIndex();
+}
+
+void MainWindow::on_actionExportar_XML_triggered()
+{
+    if(o_file->isOpen()){
+        if(indices.size() !=0){
+            QDomDocument document;
+            stringstream ss,ss1;
+            QDomElement root = document.createElement("DB");
+            document.appendChild(root);
+            //Add Records
+            QList<string> ids=indices.keys();
+            for(int i = 0; i < indices.size(); i++)
+            {
+                QDomElement record = document.createElement("Record");
+                ss << fh->getFL().at(0).getName();
+                record.setAttribute(QString::fromStdString(ss.str()), QString::fromStdString(ids.at(i)));
+                ss.str("");
+                root.appendChild(record);
+                QList<string>attr;
+                string record1=o_file->readRecord(indices.value(ids.at(i)),init,fh->getLength());
+                ss.str("");
+                string str;
+                str=this->toRecord(record1);
+                char* pch;
+                char * writable = new char[str.size() + 1];
+                copy(str.begin(), str.end(), writable);
+                writable[str.size()] = '\0';
+                pch= strtok (writable,",");
+                while(pch != NULL){
+                    ss1 << pch;
+                    attr.push_back(ss1.str());
+                    ss1.str("");
+                    pch = strtok (NULL, ",");
+                }
+                delete[] writable;
+                for(int h = 0; h < attr.size(); h++)
+                {
+                    QDomElement atributo = document.createElement("Atributo");
+                    atributo.setAttribute(QString::fromStdString(fh->getFL().at(h).getName()), QString::fromStdString(attr.at(h)));
+                    record.appendChild(atributo);
+                }
+            }
+            //Write to file
+            QString fileName = QFileDialog::getSaveFileName(this, tr("Save File"),"untitled",tr("PDF Document (*.pdf)"));
+            QFile file(fileName);
+            if(!file.open(QIODevice::WriteOnly | QIODevice::Text))
+            {
+                cout << "Error al abrir el archivo"<<endl;
+            }
+            else
+            {
+                QTextStream stream(&file);
+                stream << document.toString();
+                file.close();
+                cout << "termino de escribir el archivo"<<endl;
+            }
+        }
+        else{
+            QMessageBox::warning(this,"Error","Necesita tener al un registro para poder exportar");
+        }
+    }
+    else
+        QMessageBox::warning(this,"Error","Necesita tener un archivo abierto para poder exportar");
+}
+
+void MainWindow::on_actionExportar_Json_triggered()
+{
+    if(o_file->isOpen()){
+        if(indices.size() !=0){
+
+        }
+        else{
+            QMessageBox::warning(this,"Error","Necesita tener al un registro para poder exportar");
+        }
+    }
+    else
+        QMessageBox::warning(this,"Error","Necesita tener un archivo abierto para poder exportar");
 }
