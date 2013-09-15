@@ -860,11 +860,6 @@ void MainWindow::makeSimpleIndex(){
             indices.insert(ss.str(),k);
         }
     }
-    QList<int> asd=indices.values();
-    QList <string> asd1=indices.keys();
-    cout<< "Tamanio: " << asd.size() << endl;
-    for(int i=0; i < asd.size() ; ++i)
-        cout << asd1.at(i) << '\t' << asd.at(i) << endl;
 }
 
 void MainWindow::on_actionCrear_Indices_Simples_triggered()
@@ -890,8 +885,7 @@ void MainWindow::on_actionExportar_XML_triggered()
             for(int i = 0; i < indices.size(); i++)
             {
                 QDomElement record = document.createElement("Record");
-                ss << fh->getFL().at(0).getName();
-                record.setAttribute(QString::fromStdString(ss.str()), QString::fromStdString(ids.at(i)));
+                record.setAttribute(QString::fromStdString("N"), QString::number(i));
                 ss.str("");
                 root.appendChild(record);
                 QList<string>attr;
@@ -919,19 +913,10 @@ void MainWindow::on_actionExportar_XML_triggered()
                 }
             }
             //Write to file
-            QString fileName = QFileDialog::getSaveFileName(this, tr("Save File"),"untitled",tr("PDF Document (*.pdf)"));
-            QFile file(fileName);
-            if(!file.open(QIODevice::WriteOnly | QIODevice::Text))
-            {
-                cout << "Error al abrir el archivo"<<endl;
-            }
-            else
-            {
-                QTextStream stream(&file);
-                stream << document.toString();
-                file.close();
-                cout << "termino de escribir el archivo"<<endl;
-            }
+            QString fileName = QFileDialog::getSaveFileName(this, tr("Save File"),"untitled",tr("XML Document (*.xml)"));
+            ofstream file(fileName.toStdString().c_str());
+            file << (document.toString()).toStdString().c_str();
+            file.close();
         }
         else{
             QMessageBox::warning(this,"Error","Necesita tener al un registro para poder exportar");
@@ -945,7 +930,41 @@ void MainWindow::on_actionExportar_Json_triggered()
 {
     if(o_file->isOpen()){
         if(indices.size() !=0){
-
+            QJsonDocument doc;
+            QJsonObject root;
+            stringstream ss,ss1;
+            QList<string> ids=indices.keys();
+            for(int i=0; i < indices.size(); ++i){
+                QJsonObject a;
+                QList<string>attr;
+                string record1=o_file->readRecord(indices.value(ids.at(i)),init,fh->getLength());
+                ss.str("");
+                string str;
+                str=this->toRecord(record1);
+                char* pch;
+                char * writable = new char[str.size() + 1];
+                copy(str.begin(), str.end(), writable);
+                writable[str.size()] = '\0';
+                pch= strtok (writable,",");
+                while(pch != NULL){
+                    ss1 << pch;
+                    attr.push_back(ss1.str());
+                    ss1.str("");
+                    pch = strtok (NULL, ",");
+                }
+                delete[] writable;
+                for(int j=0;j<fh->fl_size();++j){
+                    QJsonValue value(QString::fromStdString(attr.at(j)));
+                    a.insert(QString::fromStdString(fh->getFL().at(j).getName()),value);
+                }
+                root.insert("Record "+QString::number(i),a);
+            }
+                doc.setObject(root);
+                QString qwe=doc.toJson();
+                QString fileName = QFileDialog::getSaveFileName(this, tr("Save File"),"untitled",tr("Json Document (*.json)"));
+                ofstream file(fileName.toStdString().c_str());
+                file << (qwe).toStdString().c_str();
+                file.close();
         }
         else{
             QMessageBox::warning(this,"Error","Necesita tener al un registro para poder exportar");
@@ -953,4 +972,12 @@ void MainWindow::on_actionExportar_Json_triggered()
     }
     else
         QMessageBox::warning(this,"Error","Necesita tener un archivo abierto para poder exportar");
+}
+
+void MainWindow::on_actionImportar_XML_triggered()
+{
+    if(o_file->isOpen()){
+    }
+    else
+        QMessageBox::warning(this,"Error","Necesita tener un archivo abierto para poder importar");
 }
