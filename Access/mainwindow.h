@@ -5,6 +5,7 @@
 #include <vector>
 #include <QMap>
 #include <string>
+#include <QtXml>
 #include "ADTRecordFile.h"
 #include "fileheader.h"
 using namespace std;
@@ -20,6 +21,7 @@ public:
     explicit MainWindow(QWidget *parent = 0);
     string toRecord(string);
     void makeSimpleIndex();
+    string getElement(QDomElement, QString, QString );
     ~MainWindow();
 
 private slots:

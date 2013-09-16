@@ -1,4 +1,4 @@
-﻿#include "mainwindow.h"
+#include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "field_w.h"
 #include "mfields_w.h"
@@ -199,7 +199,6 @@ void MainWindow::on_actionGuardar_triggered()
     else{
         o_file->seekp(0,ios_base::end);
         if(o_file->tellp()==1){
-            cout << "Entro en guardar" << endl;
             o_file->writeRecord(fh->toString().c_str(),0,0,fh->toString().size());
             o_file->seekp(0,ios_base::end);
             init=o_file->tellp();
@@ -588,7 +587,7 @@ void MainWindow::on_actionBuscar_triggered()
         if((fh->fl_size()<=0 || fh->fl_size()>1000))
             QMessageBox::warning(this,"Error","Necesita tener al menos un campo para poder buscar un registro");
         else{
-            if(n_rec==0)
+            if(indices.size()==0)
                 QMessageBox::warning(this,"Error","Necesita tener al menos un registro para poder buscar");
             else{
                 stringstream ss;
@@ -671,7 +670,7 @@ void MainWindow::on_actionBorrar_triggered()
         if((fh->fl_size()<=0 || fh->fl_size()>1000))
             QMessageBox::warning(this,"Error","Necesita tener al menos un campo para poder borrar un registro");
         else{
-            if(n_rec==0)
+            if(indices.size()==0)
                 QMessageBox::warning(this,"Error","Necesita tener al menos un registro para poder borrar");
             else{
                 stringstream ss;
@@ -714,7 +713,7 @@ void MainWindow::on_actionListar_2_triggered()
         if((fh->fl_size()<=0 || fh->fl_size()>1000))
             QMessageBox::warning(this,"Error","Necesita tener al menos un campo para poder listar los registros");
         else{
-            if(n_rec==0)
+            if(indices.size()==0)
                 QMessageBox::warning(this,"Error","Necesita tener al menos un registro para poder listar");
             stringstream ss;
             QString qstr;
@@ -880,12 +879,34 @@ void MainWindow::on_actionExportar_XML_triggered()
             stringstream ss,ss1;
             QDomElement root = document.createElement("DB");
             document.appendChild(root);
+            for(int i=0; i<fh->fl_size();++i){
+                QDomElement field = document.createElement("Field");
+                //field.setAttribute(QString::fromStdString("N"), QString::number(i));
+                root.appendChild(field);
+                QDomElement atributo = document.createElement("F_Atributos");
+                atributo.setAttribute("Nombre",QString::fromStdString(fh->getFL().at(i).getName()));
+                ss << fh->getFL().at(i).getType();
+                atributo.setAttribute("Tipo",QString::fromStdString(ss.str()));
+                ss.str("");
+                ss << fh->getFL().at(i).getDecimal();
+                atributo.setAttribute("Decimal",QString::fromStdString(ss.str()));
+                ss.str("");
+                ss << fh->getFL().at(i).getLength();
+                atributo.setAttribute("Longitud",QString::fromStdString(ss.str()));
+                ss.str("");
+                ss << fh->getFL().at(i).getKey();
+                atributo.setAttribute("LLave",QString::fromStdString(ss.str()));
+                ss.str("");
+                field.appendChild(atributo);
+
+            }
             //Add Records
+            ss.str("");
             QList<string> ids=indices.keys();
             for(int i = 0; i < indices.size(); i++)
             {
                 QDomElement record = document.createElement("Record");
-                record.setAttribute(QString::fromStdString("N"), QString::number(i));
+                //record.setAttribute(QString::fromStdString("N"), QString::number(i));
                 ss.str("");
                 root.appendChild(record);
                 QList<string>attr;
@@ -905,12 +926,12 @@ void MainWindow::on_actionExportar_XML_triggered()
                     pch = strtok (NULL, ",");
                 }
                 delete[] writable;
+                QDomElement atributo = document.createElement("R_Atributos");
                 for(int h = 0; h < attr.size(); h++)
                 {
-                    QDomElement atributo = document.createElement("Atributo");
                     atributo.setAttribute(QString::fromStdString(fh->getFL().at(h).getName()), QString::fromStdString(attr.at(h)));
-                    record.appendChild(atributo);
                 }
+                record.appendChild(atributo);
             }
             //Write to file
             QString fileName = QFileDialog::getSaveFileName(this, tr("Save File"),"untitled",tr("XML Document (*.xml)"));
@@ -976,8 +997,98 @@ void MainWindow::on_actionExportar_Json_triggered()
 
 void MainWindow::on_actionImportar_XML_triggered()
 {
-    if(o_file->isOpen()){
+    if(!o_file->isOpen()){
+        on_actionNuevo_triggered();
+        QDomDocument document;
+        QString filename= QFileDialog::getOpenFileName(this,"Open File","/home","*.xml");
+        //Load the file
+        QFile file(filename);
+        if(!file.open(QIODevice::ReadOnly | QIODevice::Text))
+        {
+            cout << "Failed to open file" << endl;
+            return ;
+        }
+        else
+        {
+            if(!document.setContent(&file))
+            {
+                cout << "Failed to load file" << endl;
+                return ;
+            }
+            file.close();
+        }
+        QDomElement root = document.firstChildElement();
+        QDomNodeList fields = root.elementsByTagName("Field");
+        for(int i = 0; i < fields.count(); i++)
+        {
+            QDomNode fieldnode = fields.at(i);
+            //convert to an element
+            if(fieldnode.isElement())
+            {
+                QDomElement Field = fieldnode.toElement();
+                string name;
+                char type;
+                int length,decimal,key;
+                name=getElement(Field,"F_Atributos","Nombre");
+                type=(getElement(Field,"F_Atributos","Tipo").c_str())[0];
+                length=atoi((getElement(Field,"F_Atributos","Longitud").c_str()));
+                decimal=atoi((getElement(Field,"F_Atributos","Decimal").c_str()));
+                key=atoi((getElement(Field,"F_Atributos","LLave").c_str()));
+                field f(name,type,length,decimal,key);
+                fh->addField(f);
+            }
+        }
+        o_file->writeRecord(fh->toString().c_str(),0,0,fh->toString().size());
+        o_file->seekp(0,ios_base::end);
+        init=o_file->tellp();
+        QDomNodeList records = root.elementsByTagName("Record");
+        stringstream ss;
+        for(int i = 0; i < records.count(); i++)
+        {
+            QDomNode recordnode = records.at(i);
+            //convert to an element
+            if(recordnode.isElement())
+            {
+                QDomElement RECORD = recordnode.toElement();
+                for(int j=0; j<fh->fl_size();++j){
+                    if(getElement(RECORD,"R_Atributos",QString::fromStdString(fh->getFL().at(j).getName())).size()<fh->getFL().at(j).getLength()){
+                        int toFill=fh->getFL().at(j).getLength()-getElement(RECORD,"R_Atributos",QString::fromStdString(fh->getFL().at(j).getName())).size();
+                        for(int k=0;k<toFill;++k)
+                            ss << "_";
+                        ss << getElement(RECORD,"R_Atributos",QString::fromStdString(fh->getFL().at(j).getName()));
+                    }
+                    else{
+                        ss << getElement(RECORD,"R_Atributos",QString::fromStdString(fh->getFL().at(j).getName()));
+                    }
+                }
+                if(o_file->writeRecord(ss.str().c_str(),-2,init,ss.str().size()))
+                    cout << "Se guardo el registro"<<endl;
+                else{
+                    cout << "NO se pudo guardar el registro"<<endl;
+
+                }
+                ss.str("");
+            }
+        }
+        o_file->file.flush();
+        o_file->close();
     }
     else
-        QMessageBox::warning(this,"Error","Necesita tener un archivo abierto para poder importar");
+        QMessageBox::warning(this,"Error","No tiene que tener archivos abiertos para poder importar");
+}
+
+string MainWindow::getElement(QDomElement root, QString tagname, QString attribute)
+{
+    QDomNodeList items = root.elementsByTagName(tagname);
+     for(int i = 0; i < items.count(); i++)
+     {
+        QDomNode itemnode = items.at(i);
+
+        //convert to element
+        if(itemnode.isElement())
+        {
+            QDomElement itemele = itemnode.toElement();
+            return itemele.attribute(attribute).toStdString();
+        }
+     }
 }
