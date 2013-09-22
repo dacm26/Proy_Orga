@@ -18,6 +18,7 @@
 #include <QInputDialog>
 #include <QtXml>
 #include <QJsonDocument>
+#include <QStringList>
 
 #include <iostream>
 #include <sstream>
@@ -1095,6 +1096,8 @@ void MainWindow::on_actionImportar_XML_triggered()
         }
         o_file->file.flush();
         o_file->close();
+        delete fh;
+        fh=new FileHeader();
     }
     else
         QMessageBox::warning(this,"Error","No tiene que tener archivos abiertos para poder importar");
@@ -1114,4 +1117,96 @@ string MainWindow::getElement(QDomElement root, QString tagname, QString attribu
             return itemele.attribute(attribute).toStdString();
         }
      }
+}
+
+void MainWindow::on_actionImportal_Json_triggered()
+{
+    if(!o_file->isOpen()){
+        on_actionNuevo_triggered();
+        QString filename= QFileDialog::getOpenFileName(this,"Open File","/home","*.json");
+        QString inFile;
+        QFile file(filename);
+        if(!file.open(QIODevice::ReadWrite | QIODevice::Text))
+        {
+            cout << "Failed to open file" << endl;
+            return ;
+        }
+        else
+        {
+            inFile = file.readAll();
+            file.close();
+            QJsonDocument doc=QJsonDocument::fromJson(inFile.toUtf8());
+            QJsonObject root=doc.object();
+            if(root.isEmpty()){
+                QMessageBox::warning(this, "Error", "El archivo esta vacio");
+                return ;
+            }
+            QStringList stuff=root.keys();
+            for(int i=0; i<stuff.size();++i){
+                if (stuff[i].contains(QString::fromStdString("Field"), Qt::CaseInsensitive)) {//QT::caseInsensitive compara un string ignorando mayusculas y minusculas
+                    QJsonObject obj = root[stuff[i]].toObject();
+                    QStringList atrib = obj.keys();
+                    string name;
+                    char type;
+                    int decimal;
+                    int length;
+                    int key;
+
+                    for (int j = 0; j < atrib.size(); j++) {
+
+                        if (atrib[j] == "Name") {
+                            name = obj[atrib[j]].toString().toStdString();
+                        } else if (atrib[j] == "Type") {
+                            type = ((obj[atrib[j]].toString().toStdString()).c_str())[0];
+                        } else if (atrib[j] == "Length") {
+                            length = obj[atrib[j]].toString().toInt();
+                        } else if (atrib[j] == "Decimal") {
+                            decimal = obj[atrib[j]].toString().toInt();
+                        } else if (atrib[j] == "Key") {
+                            key = obj[atrib[j]].toString().toInt();
+                        } else {
+                            QMessageBox::warning(this, "Error", "No tiene Campos en el Archivo");
+                            return;
+                        }
+                    }
+                    field f(name,type,length,decimal,key);
+                    fh->addField(f);
+                    cout << f.toString() << endl;
+                }
+            }
+            o_file->writeRecord(fh->toString().c_str(),0,0,fh->toString().size());
+            o_file->seekp(0,ios_base::end);
+            init=o_file->tellp();
+            stringstream ss;
+            for (int i = 0; i < stuff.size(); i++) {
+                if (stuff[i].contains(QString::fromStdString("Record"), Qt::CaseInsensitive)) {
+                    QJsonObject obj = root[stuff[i]].toObject();
+                    QStringList atrib = obj.keys();
+                    for (int j = 0; j < fh->fl_size(); j++) {
+                        int p = atrib.indexOf(QString::fromStdString(fh->getFL().at(j).getName()));
+                        string atr=(obj[atrib[p]].toString().toStdString());
+                        if(atr.size()<fh->getFL().at(j).getLength()){
+                            int asd=fh->getFL().at(j).getLength()-atr.size();
+                            for(int h=0; h< asd;++h)
+                                ss << "_";
+                        }
+                        ss << atr;
+                    }
+                    if(o_file->writeRecord(ss.str().c_str(),-2,init,ss.str().size()))
+                        cout << "Se guardo el registro"<<endl;
+                    else{
+                        cout << "NO se pudo guardar el registro"<<endl;
+
+                    }
+                }
+                ss.str("");
+            }
+            o_file->file.flush();
+            o_file->close();
+            delete fh;
+            fh=new FileHeader();
+        }
+    }
+        else
+        QMessageBox::warning(this,"Error","No tiene que tener archivos abiertos para poder importar");
 }

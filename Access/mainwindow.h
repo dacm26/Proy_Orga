@@ -62,6 +62,8 @@ private slots:
 
     void on_actionImportar_XML_triggered();
 
+    void on_actionImportal_Json_triggered();
+
 public:
     Ui::MainWindow *ui;
     field_W *novo;
