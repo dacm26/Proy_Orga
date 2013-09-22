@@ -28,8 +28,8 @@ using namespace std;
 
 /*
  Pendiente:
- **Utilidades
- **Arbol B
+ **Cruzar
+ **Copiar el Arbol B
 */
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
