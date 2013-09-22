@@ -27,7 +27,6 @@ using namespace std;
 
 /*
  Pendiente:
- **Trabajar Registros con indices
  **Utilidades
  **Arbol B
 */
@@ -955,6 +954,30 @@ void MainWindow::on_actionExportar_Json_triggered()
             QJsonObject root;
             stringstream ss,ss1;
             QList<string> ids=indices.keys();
+            for(int i=0; i< fh->fl_size(); i++){
+                QJsonObject a;
+                QJsonValue value(QString::fromStdString(fh->getFL().at(i).getName()));
+                a.insert(QString::fromStdString("Name"),value);
+                ss << fh->getFL().at(i).getType();
+                QJsonValue value1(QString::fromStdString(ss.str()));
+                a.insert(QString::fromStdString("Type"),value1);
+                ss.str("");
+                ss << fh->getFL().at(i).getDecimal();
+                QJsonValue value2(QString::fromStdString(ss.str()));
+                a.insert(QString::fromStdString("Decimal"),value2);
+                ss.str("");
+                ss << fh->getFL().at(i).getLength();
+                QJsonValue value3(QString::fromStdString(ss.str()));
+                a.insert(QString::fromStdString("Length"),value3);
+                ss.str("");
+                ss << fh->getFL().at(i).getKey();
+                QJsonValue value4(QString::fromStdString(ss.str()));
+                a.insert(QString::fromStdString("Key"),value4);
+                ss.str("");
+                root.insert("Field "+QString::number(i),a);
+                ss.str("");
+            }
+
             for(int i=0; i < indices.size(); ++i){
                 QJsonObject a;
                 QList<string>attr;
