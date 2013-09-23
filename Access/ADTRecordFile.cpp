@@ -4,18 +4,18 @@
 #include <fstream>
 #include <sstream>
 using namespace std;
-
+//Constructor de la clase
 ADTRecordFile::ADTRecordFile(){
 }
-
+//Destructor de la clase
 ADTRecordFile::~ADTRecordFile(){
 
 }
 
-bool ADTRecordFile::open(string name){
+bool ADTRecordFile::open(string name){//Abre el archivo
     filename=name;
-    file.open(name.c_str(), fstream::in | fstream::out);
-    if(!file.is_open()){
+    file.open(name.c_str(), fstream::in | fstream::out);//abre el archivo en modo escritura y lectura
+    if(!file.is_open()){//Se crea el archivo y se le escribe un espacio, ya que si no tiene un byte tiene problemas al momento de escribir
         file.open(name.c_str(),fstream::out);
         file.write(" ",1);
         file.flush();
@@ -23,41 +23,41 @@ bool ADTRecordFile::open(string name){
         file.open(name.c_str(), fstream::in | fstream::out);
     }
     if (file.is_open())
-        return true;
+        return true;//si no hubo problemas, signiica que esta abierto el archivo
 
-    return false;
+    return false;//No se pudo abrir el archivo
 }
 
-bool ADTRecordFile::close(){
-    if (!file.is_open())
+bool ADTRecordFile::close(){//Cierra el archivo
+    if (!file.is_open())//determina primero si el archivo esta abierto
         return false;
     file.close();
-    if(file.rdstate()!= 0)
+    if(file.rdstate()!= 0)//Si el archivo tuvo problemas para cerrarse retorna falso
         return false;
 
     return true;
 }
 
-string ADTRecordFile::readRecord(int p,int init,int size_record){
-    file.seekg(0,ios_base::beg);
-    file.seekg(init,ios_base::cur);
-    file.seekg((size_record*p),ios_base::cur);
-    char buffer[size_record];
-    file.read(buffer,size_record);
-    buffer[size_record]='\0';
+string ADTRecordFile::readRecord(int p,int init,int size_record){//Lee un registro
+    file.seekg(0,ios_base::beg);//Mueve el puntero al principio
+    file.seekg(init,ios_base::cur);//Luego lo mueve hacia donde comienzan los registros
+    file.seekg((size_record*p),ios_base::cur);//mueve el puntero al registro deseado
+    char buffer[size_record];//se crea un buffer del tamanio del registro
+    file.read(buffer,size_record);//se lee el registro
+    buffer[size_record]='\0';//se asigna manualmente el NULL al final
     stringstream ss;
-    ss << buffer;
+    ss << buffer;//se agrega el buffer al StringStream para poder devolverlo como string
     return ss.str();
 }
 
-int ADTRecordFile::read(char* buffer,int s){
+int ADTRecordFile::read(char* buffer,int s){//Lee una cierta cantidad de bytes
     if (!file.is_open())
         return -1;
     file.read(buffer,s);
     return file.gcount();
 }
 
-int ADTRecordFile::write(const char* buffer,int s){
+int ADTRecordFile::write(const char* buffer,int s){//Escribe en el archivo
     if (!file.is_open())
         return -1;
     file.write(buffer,s);
@@ -67,20 +67,20 @@ int ADTRecordFile::write(const char* buffer,int s){
     return s;
 }
 
-bool ADTRecordFile::writeRecord(const char* buffer,int where,int init,int size_record){
-    file.seekp(0,ios_base::beg);
-    file.seekp(init,ios_base::cur);
-    if(where == -1){
+bool ADTRecordFile::writeRecord(const char* buffer,int where,int init,int size_record){//Escribe un Registro en el archivo
+    file.seekp(0,ios_base::beg);//mueve el puntero al principio
+    file.seekp(init,ios_base::cur);//mueve el puntero hacia donde comienzan los registros
+    if(where == -1){//Si no hay nada en el Avail List se agrega el registro al final
         file.seekp(0,ios_base::end);
         file.write(buffer,size_record);
     }
-    else if(where == -2){
+    else if(where == -2){//Si es el primer registro agrega el registro al final
         file.seekp(0,ios_base::end);
         file.write(buffer,size_record);
     }
-    else{
-        file.seekp((size_record*where),ios_base::cur);
-        file.write(buffer,size_record);
+    else{//SI hay algo en el AL
+        file.seekp((size_record*where),ios_base::cur);//Se mueve el puntero hacia donde se encuentra la proxima posicion a insertar
+        file.write(buffer,size_record);//se escribe el archivo
     }
     file.flush();
     if(file.rdstate()!= 0)
@@ -90,19 +90,19 @@ bool ADTRecordFile::writeRecord(const char* buffer,int where,int init,int size_r
 
 bool ADTRecordFile::updateRecord(){
 
-    return this->flush();
+    return this->flush();//Flushea el archivo
 }
 
-int ADTRecordFile::deleteRecord(int p,int init,int size_record){
-    file.seekp(0,ios_base::beg);
-    file.seekp(init,ios_base::cur);
-    file.seekp((p*size_record),ios_base::cur);
-    file.write("*",1);
+int ADTRecordFile::deleteRecord(int p,int init,int size_record){//Elimina un registro
+    file.seekp(0,ios_base::beg);//MUeve el puntero hacia el principio
+    file.seekp(init,ios_base::cur);//Mueve el puntero hacia donde comienzan los registros
+    file.seekp((p*size_record),ios_base::cur);//Se mueve hacia el registro que se desea eliminar
+    file.write("*",1);//Marca el registro como borrado
     file.flush();
     return p;//Para el availList
 }
 
-bool ADTRecordFile::flush(){
+bool ADTRecordFile::flush(){//Flushea el archivo
     if (!file.is_open())
         return false;
     file.flush();
@@ -112,7 +112,7 @@ bool ADTRecordFile::flush(){
     return true;
 }
 
-bool ADTRecordFile::seekg(int n,ios_base::seekdir way){
+bool ADTRecordFile::seekg(int n,ios_base::seekdir way){//Es el metodo de mover el puntero de lectura
     if (!file.is_open())
         return false;
 
@@ -120,7 +120,7 @@ bool ADTRecordFile::seekg(int n,ios_base::seekdir way){
 
     return true;
 }
-bool ADTRecordFile::seekp(int n,ios_base::seekdir way){
+bool ADTRecordFile::seekp(int n,ios_base::seekdir way){//Es el metodo de mover el puntero de escritura
     if (!file.is_open())
         return false;
 
@@ -128,28 +128,28 @@ bool ADTRecordFile::seekp(int n,ios_base::seekdir way){
     return true;
 }
 
-int ADTRecordFile::tellg(){
+int ADTRecordFile::tellg(){//indica la posicion del puntero de lectura
     if (!file.is_open())
         return -1;
 
     return file.tellg();
 }
 
-int ADTRecordFile::tellp(){
+int ADTRecordFile::tellp(){//indica la posicion del puntero de escritura
     if (!file.is_open())
         return -1;
 
     return file.tellp();
 }
 
-bool ADTRecordFile::isOpen(){
+bool ADTRecordFile::isOpen(){//Determina si el archivo esta abierto
     if(file.is_open())
         return true;
 
     return false;
 }
 
-bool ADTRecordFile::isOk(){
+bool ADTRecordFile::isOk(){//determina si el archivo esta en condiciones para usarse
     if (!file.is_open())
         return false;
 
@@ -159,7 +159,7 @@ bool ADTRecordFile::isOk(){
     return false;
 }
 
-bool ADTRecordFile::isBoF(){
+bool ADTRecordFile::isBoF(){//Indica si el puntero de lectura o escritura esta al principio
     if (!file.is_open())
         return false;
 
@@ -169,7 +169,7 @@ bool ADTRecordFile::isBoF(){
     return false;
 }
 
-bool ADTRecordFile::isEoF(){
+bool ADTRecordFile::isEoF(){//Indica si el puntero de lectura o escritura esta al final
     if(file.eof())
         return true;
     return false;

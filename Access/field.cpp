@@ -1,5 +1,7 @@
 #include "field.h"
 
+
+//Constructores de la Clase
 field::field(){
 
 }
@@ -11,11 +13,12 @@ field::field( string n, char t, int l, int d, int k ) {
 	this->length = l;
 	this->key = k;
 }
-
+//Destructor de la clase
 field::~field() {
 	
 }
 
+//Mutadores y Accesores de la CLase
 void field::setName ( const string name ){
 	this->name = name;
 }

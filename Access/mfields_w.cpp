@@ -4,11 +4,7 @@
 #include <QMessageBox>
 #include <iostream>
 using namespace std;
-/*
- *Problemas con el boton
- *con el editingline
-*/
-mFields_w::mFields_w(QWidget *parent) :
+mFields_w::mFields_w(QWidget *parent) ://Constructor de la clase
     QDialog(parent),
     ui(new Ui::mFields_w)
 {
@@ -25,7 +21,7 @@ mFields_w::mFields_w(QWidget *parent) :
     connect(ui->mod_nombre,SIGNAL(editingFinished()),this,SLOT(on_mod_nombre_editingFinished()));
 }
 
-mFields_w::~mFields_w()
+mFields_w::~mFields_w()//Destructor de la clase
 {
     delete ui;
 }

@@ -2,11 +2,11 @@
 #include <sstream>
 #include <iostream>
 using namespace std;
-FileHeader::FileHeader() {
+FileHeader::FileHeader() {//Constructor de la clase
 	
 }
 
-FileHeader::~FileHeader() {
+FileHeader::~FileHeader() {//Desstructor de la clase
 	
 }
 
@@ -17,11 +17,11 @@ void FileHeader::addField ( field f ){//Se anade un campo al vector de campos
 void FileHeader::removeField ( const int i ){//Se elimina un campo del vector de campos
 	this->fieldlist.erase(fieldlist.begin() + i);
 }
-void FileHeader::setAL(stack<int> x){
+void FileHeader::setAL(stack<int> x){//Setea el nuevo AL
     this->availList=x;
 }
 
-stack<int> FileHeader::getAL(){
+stack<int> FileHeader::getAL(){//Devuelve el AL
     return this->availList;
 }
 

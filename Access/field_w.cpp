@@ -5,6 +5,7 @@
 #include <iostream>
 #include <stack>
 using namespace std;
+//constructor de la ventana de campos
 field_W::field_W(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::field_W)
@@ -17,7 +18,7 @@ field_W::field_W(QWidget *parent) :
     ui->field_type->addItem("Cadena");
     ui->field_decimal->setEnabled(false);
 }
-void field_W::copy_fh(FileHeader* f){
+void field_W::copy_fh(FileHeader* f){//Copia los elementos del FH a un temporal
     cout << "At copy_fh"<<endl;
     for(int i=0;i<f->fl_size();i++)
         fh->addField(f->getFL().at(i));
@@ -29,7 +30,7 @@ void field_W::copy_fh(FileHeader* f){
             break;
          }
 }
-
+//destructor de la ventana de campos
 field_W::~field_W()
 {
     delete ui;
@@ -115,7 +116,7 @@ void field_W::on_field_add_clicked()
     ui->field_name->setText("");
     ui->field_type->setCurrentIndex(0);
 }
-FileHeader* field_W::getFields(){
+FileHeader* field_W::getFields(){// devuelve el FH
     return fh;
 }
 
