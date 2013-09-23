@@ -789,7 +789,7 @@ void MainWindow::on_actionCruzar_triggered()//Cruza dos archivos
                     intersection.push_back(indices.value(ss.str()));
                 ss.str("");
             }
-            file.close();
+            file.close();1
             if(intersection.size() == 0 ){
                 QMessageBox::information(this,"Info","No hay registros en comun");
             }
