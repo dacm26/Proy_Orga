@@ -22,7 +22,8 @@ SOURCES += main.cpp\
     fileheader.cpp \
     mfields_w.cpp \
     btree.cpp \
-    bnode.cpp
+    bnode.cpp \
+    key.cpp
 
 HEADERS  += mainwindow.h \
     ADTRecordFile.h \
@@ -31,7 +32,8 @@ HEADERS  += mainwindow.h \
     fileheader.h \
     mfields_w.h \
     btree.h \
-    bnode.h
+    bnode.h \
+    key.h
 
 FORMS    += mainwindow.ui \
     field_w.ui \

@@ -686,14 +686,14 @@ void MainWindow::on_actionBorrar_triggered()//Elimina un registro
                     if(in)
                         indices.remove(z1);
                 }
-                if(arbol){
+                /*if(arbol){
                     val=tree.remove(z1);
                     if(val==-1)
                         in=false;
                     else{
                         in=true;
                     }
-                }
+                }*/
                 if(in){
                     o_file->deleteRecord(val,init,fh->getLength());
                     fh->addIndex(val);//Recordar que en el AL se guarda la pos +1;
@@ -727,6 +727,10 @@ void MainWindow::on_actionListar_2_triggered()//Lista los registros
                 model->setHorizontalHeaderItem(i,new QStandardItem(QString(QString::fromStdString(fh->getFL().at(i).getName()))));
             }
             int pos=0;
+            if(arbol){
+                indices.clear();
+                makeSimpleIndex();
+            }
             QList<string> asd=indices.keys();
             for(int k=0;k<asd.size();++k){
                 string record=o_file->readRecord(indices.value(asd.at(k)),init,fh->getLength());
@@ -882,6 +886,10 @@ void MainWindow::on_actionExportar_XML_triggered()//Exporta el archivo a XML
 {
     if(o_file->isOpen()){
         if(indices.size() !=0){
+            if(arbol){
+                indices.clear();
+                makeSimpleIndex();
+            }
             QDomDocument document;
             stringstream ss,ss1;
             QDomElement root = document.createElement("DB");
@@ -958,6 +966,10 @@ void MainWindow::on_actionExportar_Json_triggered()//Exporta el archivo a Json
 {
     if(o_file->isOpen()){
         if(indices.size() !=0){
+            if(arbol){
+                indices.clear();
+                makeSimpleIndex();
+            }
             QJsonDocument doc;
             QJsonObject root;
             stringstream ss,ss1;
