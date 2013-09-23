@@ -20,12 +20,14 @@
 #include <QInputDialog>
 #include <QtXml>
 #include <QJsonDocument>
+#include <QSet>
 #include <QStringList>
 
 #include <iostream>
 #include <sstream>
 #include <iomanip>
 #include <stdlib.h>
+#include <fstream>
 using namespace std;
 
 /*
@@ -766,13 +768,45 @@ void MainWindow::on_actionListar_2_triggered()//Lista los registros
 void MainWindow::on_actionCruzar_triggered()//Cruza dos archivos
 {
     if(o_file->isOpen()){
-        if((fh->fl_size()<=0 || fh->fl_size()>1000))
-            QMessageBox::warning(this,"Error","Necesita tener al menos un campo para poder cruzar un registro");
-        else{
-            if(n_rec==0)
-                QMessageBox::warning(this,"Error","Necesita tener al menos un registro para poder cruzar");
-
+        if(n_rec != 0){
+            QList<int> intersection;
+            fstream file;
+            indices.clear();
+            makeSimpleIndex();
+            file.open("empleados.txt",fstream::in | fstream::out);
+            string line;
+            stringstream ss;
+            while(file.good()){//Parsea el Archivo
+                getline(file,line);
+                cout << line << endl;
+                for(int i=0; i<line.size();++i){
+                    if( (line.c_str())[i]==',' )
+                        i=line.size();
+                    else
+                        ss << (line.c_str())[i];
+                }
+                if(indices.contains(ss.str()))
+                    intersection.push_back(indices.value(ss.str()));
+                ss.str("");
+            }
+            file.close();
+            if(intersection.size() == 0 ){
+                QMessageBox::information(this,"Info","No hay registros en comun");
+            }
+            else{
+                file.open("intersection.txt",fstream::out);
+                string rec;
+                for(int i=0; i<intersection.size();++i){
+                    rec=o_file->readRecord(intersection.at(i),init,fh->getLength());
+                    file.write(rec.c_str(),rec.size());
+                }
+                file.flush();
+                file.close();
+                QMessageBox::information(this,"Info","Hay registros en comun se copiaran los registros a un nuevo archivo");
+            }
         }
+        else
+            QMessageBox::warning(this,"Error","No tiene ningun registro");
     }
     else
         QMessageBox::warning(this,"Error","No tiene ningun archivo abierto");
