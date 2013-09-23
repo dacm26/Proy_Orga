@@ -688,6 +688,14 @@ void MainWindow::on_actionBorrar_triggered()//Elimina un registro
                     if(in)
                         indices.remove(z1);
                 }
+                else{
+                    indices.clear();
+                    makeSimpleIndex();
+                    in=indices.contains(z1);
+                    val=indices.value(z1);
+                    if(in)
+                        indices.remove(z1);
+                }
                 /*if(arbol){
                     val=tree.remove(z1);
                     if(val==-1)
@@ -789,7 +797,7 @@ void MainWindow::on_actionCruzar_triggered()//Cruza dos archivos
                     intersection.push_back(indices.value(ss.str()));
                 ss.str("");
             }
-            file.close();1
+            file.close();
             if(intersection.size() == 0 ){
                 QMessageBox::information(this,"Info","No hay registros en comun");
             }
