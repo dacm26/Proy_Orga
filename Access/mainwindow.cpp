@@ -3,6 +3,8 @@
 #include "field_w.h"
 #include "mfields_w.h"
 #include "ADTRecordFile.h"
+#include "bnode.h"
+#include "btree.h"
 
 #include <QMessageBox>
 #include <QDebug>
@@ -29,7 +31,6 @@ using namespace std;
 /*
  Pendiente:
  **Cruzar
- **Copiar el Arbol B
 */
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -37,6 +38,8 @@ MainWindow::MainWindow(QWidget *parent) :
 {//Constructor de la clase
     init=0;
     n_rec=0;
+    simple=true;
+    arbol=false;
     ui->setupUi(this);
     this->temp=new ADTRecordFile();
     temp->open("temp.txt");
@@ -399,7 +402,7 @@ void MainWindow::on_actionIntroducir_triggered()//Adiciona un registro al archiv
                         x=QInputDialog::getInt(this,"Add Record",(QString::fromStdString(asd)),0,0,99999999999999999999,1,&ok);
                         ss2.str("");
                         ss2 << x;
-                        if(i==pos1 && indices.contains(ss2.str())){
+                        if(i==pos1 && (indices.contains(ss2.str()) || tree.search_Key(tree.getRoot(),ss2.str()) != -1)){
                             ok=false;
                         }
                         if(ok){
@@ -438,7 +441,7 @@ void MainWindow::on_actionIntroducir_triggered()//Adiciona un registro al archiv
                         y=QInputDialog::getDouble(this,"Add Record",(QString::fromStdString(ss1.str())),0,0,99999999999999999999.99,fh->getFL().at(i).getDecimal(),&ok);
                         ss2.str("");
                         ss2 << y;
-                        if(i==pos1 && indices.contains(ss2.str())){
+                        if(i==pos1 && (indices.contains(ss2.str()) || tree.search_Key(tree.getRoot(),ss2.str()) != -1)){
                             ok=false;
                         }
                         if(ok){
@@ -482,7 +485,7 @@ void MainWindow::on_actionIntroducir_triggered()//Adiciona un registro al archiv
                         z=text.toStdString();
                         ss2.str("");
                         ss2 << z;
-                        if(i==pos1 && indices.contains(ss2.str())){
+                        if(i==pos1 && (indices.contains(ss2.str()) || tree.search_Key(tree.getRoot(),ss2.str()) != -1)){
                             ok=false;
                         }
                         if(ok){
@@ -538,8 +541,15 @@ void MainWindow::on_actionIntroducir_triggered()//Adiciona un registro al archiv
 
            }
             ++n_rec;
-            indices.clear();
-            makeSimpleIndex();
+            if(arbol){
+                indices.clear();
+                makeSimpleIndex();
+                on_actionCrear_Indices_Arbol_B_triggered();
+            }
+            else{
+                indices.clear();
+                makeSimpleIndex();
+            }
             /*QList<int> asd=indices.values();
             QList <string> asd1=indices.keys();
             cout<< "Tamanio: " << asd.size() << endl;
@@ -572,8 +582,22 @@ void MainWindow::on_actionBuscar_triggered()//Busca un Registro
                                                          QDir::home().dirName(), &ok);
                     z1=text.toStdString();
                 }while(!ok);
-                if(indices.contains(z1)){
-                    string record=o_file->readRecord(indices.value(z1),init,fh->getLength());
+                bool in=false;
+                int val;
+                if(simple){
+                    in=indices.contains(z1);
+                    val=indices.value(z1);
+                }
+                if(arbol){
+                    val=tree.search_Key(tree.getRoot(),z1);
+                    if(val==-1)
+                        in=false;
+                    else{
+                        in=true;
+                    }
+                }
+                if(in){
+                    string record=o_file->readRecord(val,init,fh->getLength());
                     QStandardItemModel* model = new QStandardItemModel(1,1,this);//Se crea el modelo para la tabla
                     //Se crean las columnas de la tabla
                     for(int i=0;i<fh->fl_size();++i){
@@ -654,13 +678,26 @@ void MainWindow::on_actionBorrar_triggered()//Elimina un registro
                                                          QDir::home().dirName(), &ok);
                     z1=text.toStdString();
                 }while(!ok);
-                if(indices.contains(z1)){
-                    o_file->deleteRecord(indices.value(z1),init,fh->getLength());
-                    fh->addIndex(indices.value(z1));//Recordar que en el AL se guarda la pos +1;
-                    indices.remove(z1);
+                bool in=false;
+                int val;
+                if(simple){
+                    in=indices.contains(z1);
+                    val=indices.value(z1);
+                    if(in)
+                        indices.remove(z1);
+                }
+                if(arbol){
+                    val=tree.remove(z1);
+                    if(val==-1)
+                        in=false;
+                    else{
+                        in=true;
+                    }
+                }
+                if(in){
+                    o_file->deleteRecord(val,init,fh->getLength());
+                    fh->addIndex(val);//Recordar que en el AL se guarda la pos +1;
                     --n_rec;
-                    QList<int> asd=indices.values();
-                    QList <string> asd1=indices.keys();
                     QMessageBox::information(this,"Info.","Eliminacion con exito");
                 }
                 else{
@@ -830,11 +867,15 @@ void MainWindow::makeSimpleIndex(){//Crea los Indices SImples
 void MainWindow::on_actionCrear_Indices_Simples_triggered()//Crea los indices simples
 {
     makeSimpleIndex();
+    simple=true;
+    arbol=false;
 }
 
 void MainWindow::on_actionReindexar_triggered()//Vuelve a crear los indices
 {
     makeSimpleIndex();
+    simple=true;
+    arbol=false;
 }
 
 void MainWindow::on_actionExportar_XML_triggered()//Exporta el archivo a XML
@@ -1175,3 +1216,25 @@ void MainWindow::on_actionImportal_Json_triggered()//importa un archivo json
         else
         QMessageBox::warning(this,"Error","No tiene que tener archivos abiertos para poder importar");
 }
+
+void MainWindow::on_actionCrear_Indices_Arbol_B_triggered()
+{
+    if(o_file->isOpen()){
+        if(n_rec !=0){
+            QList<string>keys=indices.keys();
+            QList<int>values=indices.values();
+            for(int i=0;i<keys.size();++i){
+                tree.insert(keys.at(i),values.at(i));
+            }
+            simple=false;
+            arbol=true;
+        }
+        else{
+            QMessageBox::warning(this,"Error","Debe tener un archivo con registros");
+        }
+    }
+    else{
+        QMessageBox::warning(this,"Error","Debe tener un archivo abierto y con registros");
+    }
+}
+

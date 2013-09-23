@@ -20,14 +20,18 @@ SOURCES += main.cpp\
     field_w.cpp \
     field.cpp \
     fileheader.cpp \
-    mfields_w.cpp
+    mfields_w.cpp \
+    btree.cpp \
+    bnode.cpp
 
 HEADERS  += mainwindow.h \
     ADTRecordFile.h \
     field_w.h \
     field.h \
     fileheader.h \
-    mfields_w.h
+    mfields_w.h \
+    btree.h \
+    bnode.h
 
 FORMS    += mainwindow.ui \
     field_w.ui \

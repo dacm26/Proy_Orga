@@ -8,6 +8,8 @@
 #include <QtXml>
 #include "ADTRecordFile.h"
 #include "fileheader.h"
+#include "btree.h"
+#include "bnode.h"
 using namespace std;
 namespace Ui {
 class MainWindow;
@@ -46,6 +48,8 @@ private slots:
     void on_actionImportar_XML_triggered();//Importa el archivo en xml
     void on_actionImportal_Json_triggered();//Importa el archivo en json
 
+    void on_actionCrear_Indices_Arbol_B_triggered();
+
 public:
     Ui::MainWindow *ui;//Ventana Principal
     field_W *novo;//Ventana de crear campos
@@ -55,6 +59,8 @@ public:
     QMap<string,int> indices;//Indices Simples
     int init;//Inicio de los registros en el archivo
     int n_rec;//Numero de Registros en el archivo
+    BTree tree;//Arbol B
+    bool simple,arbol;
 };
 
 #endif // MAINWINDOW_H
